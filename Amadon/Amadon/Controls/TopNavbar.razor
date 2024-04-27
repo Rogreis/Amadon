@@ -1,0 +1,285 @@
+﻿@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+@inject NavigationManager NavigationManager
+
+<style>
+
+    .custom-input-ident {
+        width: 180px;
+    }
+
+    .custom-input-high {
+        width: 220px;
+        margin: 4px; /* Spacing around the elements */
+    }
+
+    .custom-nav-link-right {
+        margin-right: 5px;
+    }
+
+    .custom-nav-link-left {
+        margin-left: 5px;
+    }
+
+
+</style>
+
+<nav class="navbar navbar-expand-sm bg-primary navbar-dark navbarheight fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">
+            <img src="studying-icon.png" style="width:40px;" class="rounded-pill">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToTOC">
+                        <span class="oi oi-list" aria-hidden="true"></span> Table of Contents
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToIndex">
+                        <span class="oi oi-star" aria-hidden="true"></span> Index
+                    </NavLink>
+                </li>
+
+@*                 <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToStudies">
+                        <span class="oi oi-eye" aria-hidden="true"></span> Studies
+                    </NavLink>
+                </li>
+ *@                
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToSearch">
+                        <span class="oi oi-envelope-closed" aria-hidden="true"></span> Search
+                    </NavLink>
+                </li>
+
+@*                 <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToNotes">
+                        <span class="oi oi-comment-square" aria-hidden="true"></span> Notes
+                    </NavLink>
+                </li>
+ *@
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToTrack">
+                        <span class="oi oi-location" aria-hidden="true"></span> Track
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToSettings">
+                        <span class="oi oi-target" aria-hidden="true"></span> Settings
+                    </NavLink>
+                </li>
+                <li class="nav-item px-3">
+                    <NavLink class="nav-link" @onclick="LinkToHelp">
+                        <span class="oi oi-question-mark" aria-hidden="true"></span> Help
+                    </NavLink>
+                </li>
+            </ul>
+
+            <NavLink class="nav-link" @onclick="JumpToFirstPaper">
+                <span class="oi oi oi-media-step-backward custom-nav-link-right" aria-hidden="true"></span>
+            </NavLink>
+            <NavLink class="nav-link" @onclick="JumpToPreviousPaper">
+                <span class="oi oi oi-media-skip-backward custom-nav-link-right" aria-hidden="true"></span>
+            </NavLink>
+            <NavLink class="nav-link" @onclick="JumpToPreviousReference">
+                <span class="oi oi oi-chevron-left" aria-hidden="true"></span>
+            </NavLink>
+
+            <TextEdit Class="form-control custom-input-ident" @bind-Text="@ParagraphIdent" @onkeydown="HandleKeyDownIdent" MaxLength="15" Placeholder="Paragraph ident" />
+
+            <NavLink class="nav-link" @onclick="JumpToNextReference">
+                <span class="oi oi oi-chevron-right custom-nav-link-right" aria-hidden="true"> </span>
+            </NavLink>
+            <NavLink class="nav-link" @onclick="JumpToNextPaper">
+                <span class="oi oi oi-media-skip-forward custom-nav-link-right" aria-hidden="true"> </span>
+            </NavLink>
+            <NavLink class="nav-link" @onclick="JumpToLastPaper">
+                <span class="oi oi oi-media-step-forward" aria-hidden="true"></span>
+            </NavLink>
+
+
+            <TextEdit Class="form-control me-2 highlightField custom-input-high" @bind-Text="@ExpressionToSearch" @onkeydown="HandleKeyDownHigh" MaxLength="150" Placeholder="Expression to highlight" />
+
+        </div>
+    </div>
+</nav>
+
+@code
+{
+    // Using icoes from: https://github.com/iconic/open-iconic
+    // Preview at: https://www.nsbasic.com/app/OpenIconic.html
+
+    private string ExpressionToSearch = "";
+
+    private string ParagraphIdent = "";
+
+    private bool ControlNameValid(string name)
+    {
+        return name == AmandonComponentNames.ControlSettings ||
+               name == AmandonComponentNames.ControlSearch ||
+               name == AmandonComponentNames.ControlStudies ||
+               name == AmandonComponentNames.ControlHelp ||
+               name == AmandonComponentNames.ControlTrack ||
+               name == AmandonComponentNames.ControlNotes ||
+               name == AmandonComponentNames.ControlIndex ||
+               name == AmandonComponentNames.ControlToc;
+    }
+
+
+    private void JumpToFirstPaper()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.FirstPaper(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+
+    private void JumpToPreviousPaper()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.PreviousPaper(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+    private void JumpToNextPaper()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.NextPaper(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+    private void JumpToLastPaper()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.LastPaper(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+
+
+
+    /// <summary>
+    /// Jump to previous reference
+    /// It is not being tracked
+    /// </summary>
+    private void JumpToPreviousReference()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.PreviousHRef(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+    /// <summary>
+    /// Jump to next reference
+    /// It is not being tracked
+    /// </summary>
+    private void JumpToNextReference()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.NextHRef(TOC_Entry.FromHref(paragraphRef));
+        AmadonEvents.NewParagraphIdent(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+    /// <summary>
+    /// Jump to the typed reference
+    /// It is being tracked
+    /// </summary>
+    private void JumpToReference()
+    {
+        string paragraphRef = ParagraphIdent;
+        TOC_Entry entry = TOC_Entry.FromHref(paragraphRef);
+        AmadonEvents.NewSearchEntry(entry);
+        ParagraphIdent = entry.Reference;
+    }
+
+    private void QuickSearch()
+    {
+        AmadonEvents.HighlightExpression(ExpressionToSearch);
+    }
+
+    private void HandleKeyDownIdent(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            JumpToReference();
+        }
+        else if (args.Key == "F1")
+        {
+            AmadonEvents.ShowHelpPage(AmandonHelpPageNames.MenuBarHelp);
+        }
+    }
+
+
+    private void HandleKeyDownHigh(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter")
+        {
+            QuickSearch();
+        }
+        else if (args.Key == "F1")
+        {
+            AmadonEvents.ShowHelpPage(AmandonHelpPageNames.MenuBarHelp);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AmadonEvents.OnUpdateParagraphIdent += SentParagraphIdent;
+    }
+
+    private void SentParagraphIdent(TOC_Entry entry)
+    {
+        ParagraphIdent = entry.Reference;
+        StateHasChanged();
+    }
+
+    private void FireTopNavCommand(string eventName)
+    {
+
+        if (ControlNameValid(eventName))
+        {
+            switch (eventName)
+            {
+                case AmandonComponentNames.ControlHelp:
+                    AmadonEvents.HelpContext();
+                    break;
+                default:
+                    StaticObjects.Parameters.LastLeftControl = eventName;
+                    AmadonEvents.TopNavCommand(eventName);
+                    break;
+            }
+        }
+    }
+
+    private void LinkToTOC() => FireTopNavCommand(AmandonComponentNames.ControlToc);
+
+    private void LinkToIndex() => FireTopNavCommand(AmandonComponentNames.ControlIndex);
+
+    private void LinkToStudies() => FireTopNavCommand(AmandonComponentNames.ControlStudies);
+
+    private void LinkToSearch() => FireTopNavCommand(AmandonComponentNames.ControlSearch);
+
+    private void LinkToNotes() => FireTopNavCommand(AmandonComponentNames.ControlNotes);
+
+    private void LinkToTrack() => FireTopNavCommand(AmandonComponentNames.ControlTrack);
+
+    private void LinkToSettings() => FireTopNavCommand(AmandonComponentNames.ControlSettings);
+
+    private void LinkToHelp() => FireTopNavCommand(AmandonComponentNames.ControlHelp);
+  
+
+
+}

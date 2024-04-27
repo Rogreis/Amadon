@@ -1,0 +1,195 @@
+﻿@using Amadon.Controls.Help
+
+<style>
+
+    .AmadonModal {
+        width: 70vw !important; /* 70% of the viewport width */
+        height: 70vh !important; /* 70% of the viewport height */
+        margin: auto !important; /* Center the modal */
+    }
+
+    .AmadonDark {
+        background-color: #212529; /* This is for .bg-dark */
+        color: #ffffff; /* This is for .text-white */
+    }
+
+    .ModalSize {
+        position: fixed; /* Use fixed position */
+        top: 150px; /* Distance from the top */
+        left: 250px; /* Distance from the left */
+        width: 95% !important;
+        height: 70% !important;
+        max-height: 70% !important;
+        overflow: auto; /* Add scrollbar if content is larger than modal */
+    }
+
+    .ModalBorder {
+        border: 2px solid var(--bs-warning) !important;
+    }
+
+    .HeaderColors {
+        background-color: var(--bs-primary);
+        color: var(--bs-white);
+    }
+
+    .scrollable-modal-body {
+        max-height: 450px; /* Adjust this to your desired height */
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    td {
+        background-color: #212529; /* This is for .bg-dark */
+        color: #ffffff; /* This is for .text-white */
+    }
+
+    th {
+        background-color: #212529;
+        color: gold;
+    }
+
+
+    .barlink-hover:hover {
+        cursor: pointer;
+        color: var(--bs-warning) !important;
+    }
+
+</style>
+
+
+<Modal @ref="modalRef" Class="modal-xl ModalSize fade">
+    <ModalContent ElementId="ModalContent" Class="ModalBorder">
+        <ModalHeader Class="AmadonDark HeaderColors">
+            <ModalTitle>@Title</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody Class="AmadonDark scrollable-modal-body">
+
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.StartingHelp)
+            {
+                <StartHelp @ref="@StartHelpComponent"></StartHelp>
+            }
+
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.TocHelp)
+            {
+                <TocHelp @ref="@TocHelpComponent"></TocHelp>
+            }
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.SearchHelp)
+            {
+                <SearchHelp @ref="@SearchHelpComponent"></SearchHelp>
+            }
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.TrackHelp)
+            {
+                <TrackHelp @ref="@TrackHelpComponent"></TrackHelp>
+            }
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.IndexHelp)
+            {
+                <IndexHelp @ref="@IndexHelpComponent"></IndexHelp>
+            }
+
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.SettingsHelp)
+            {
+                <SettingsHelp @ref="@SettingsHelpComponent"></SettingsHelp>
+            }
+
+
+            @if (@CurrentHelpPageName == AmandonHelpPageNames.MenuBarHelp)
+            {
+                <MenuBarHelp @ref="@MenuBarHelpComponent"></MenuBarHelp>
+            }
+
+        </ModalBody>
+        <ModalFooter Class="AmadonDark">
+            <HelpBar></HelpBar>
+            <Button Color="Color.Secondary" Clicked="@HideModal">Close</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+
+
+@code {
+    // reference to the modal component
+    private Modal modalRef;
+    private StartHelp StartHelpComponent;
+    private TocHelp TocHelpComponent;
+    private SearchHelp SearchHelpComponent;
+    private TrackHelp TrackHelpComponent;
+    private IndexHelp IndexHelpComponent;
+    private SettingsHelp SettingsHelpComponent;
+    private MenuBarHelp MenuBarHelpComponent;
+
+    public bool IsDarkMode { get; set; } = true;
+    private string CurrentHelpPageName = AmandonHelpPageNames.StartingHelp;
+
+
+    private string Title { get; set; } = "Amadon Help";
+
+    private void GetCurrentTitle()
+    {
+        switch (CurrentHelpPageName)
+        {
+            case AmandonHelpPageNames.StartingHelp:
+                Title = "Starting Help";
+                break;
+            case AmandonHelpPageNames.TocHelp:
+                Title = "Table of Contents Help";
+                break;
+            case AmandonHelpPageNames.SearchHelp:
+                Title = "Search Engine Help";
+                break;
+            case AmandonHelpPageNames.TrackHelp:
+                Title = "Track Help";
+            break;
+            case AmandonHelpPageNames.IndexHelp:
+                Title = "Subject Index Help";
+                break;
+            case AmandonHelpPageNames.SettingsHelp:
+                Title = "Settings Help";
+                break;
+            case AmandonHelpPageNames.MenuBarHelp:
+                Title = "Menu Bar Help";
+                break;
+            default:
+                Title = "???";
+                break;
+        }
+    }
+
+
+    public void ChangeHelpText(string amandonHelpPageName)
+    {
+        CurrentHelpPageName = amandonHelpPageName;
+    }
+
+    public void ShowModal(string amandonHelpPageName)
+    {
+        CurrentHelpPageName = amandonHelpPageName;
+        if (!modalRef.Visible)
+        {
+            modalRef.Show();
+        }
+        else
+        {
+            modalRef.Hide();
+            modalRef.Show();
+        }
+        StateHasChanged();
+        Task.Delay(1);
+        GetCurrentTitle();
+        Task.Delay(1);
+        StateHasChanged();
+    }
+
+    public Task HideModal()
+    {
+        return modalRef.Hide();
+    }
+}
+

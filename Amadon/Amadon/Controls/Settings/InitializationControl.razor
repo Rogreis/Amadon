@@ -1,0 +1,269 @@
+﻿@using Amadon.Controls.Settings
+@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+
+
+<h4>The Urantia Book Study help is initializing. Please, wait...</h4>
+
+<LogControl @ref="logViewer"></LogControl>
+
+
+
+<Modal @ref="ModalTranslationsToShow">
+    <ModalContent Centered Size="ModalSize.Large" Class="text-white bg-dark">
+        <ModalHeader>
+            <ModalTitle>Make your choice for translations to download and show</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody>
+            <TranslationsToShow Items="Items"></TranslationsToShow>
+        </ModalBody>
+        <ModalFooter>
+            <Button Color="Color.Secondary" Clicked="@HideModalCancel">Close</Button>
+            <Button Color="Color.Primary" Clicked="@HideModalOk">Save Changes</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+<Alert Color="@AlertColor" @bind-Visible="@alertVisible">
+    <AlertMessage>
+        @AlertMessage
+    </AlertMessage>
+    <CloseButton />
+</Alert>
+
+@code {
+    enum Status
+    {
+        NotInitialized,
+        LogInitialized,
+        ParametersInitialized,
+        TranslationsListInitialized,
+        WaitingTranslationChoice,
+        TranslationsChoiceDone,
+        ReadyToGo,
+        Error
+    }
+
+    // Page status control
+    private Status InitializationStatus = Status.NotInitialized;
+
+    private LogControl logViewer;
+
+    public List<TranslationToShowItem> Items { get; set; }
+
+
+    // Modal parameters
+    private Modal ModalTranslationsToShow;
+
+    private bool centered = false;
+    private ModalSize modalSize = ModalSize.Default;
+    private int? maxHeight = null;
+    private bool animation = true;
+    private int animationDuration = 150;
+
+    // Alert parameters
+    bool alertVisible = false;
+    string AlertMessage = "";
+    Color AlertColor = Color.Success;
+
+    private void HandleSendMessage(string Message)
+    {
+        Task t = Task.Run(async () => await logViewer.AppendLogText(Message));
+        try
+        {
+            StateHasChanged();
+        }
+        catch { }
+    }
+
+
+    #region Modal routines
+    private Task ShowAlert(Color color, string message)
+    {
+        this.AlertColor = color;
+        this.AlertMessage = message;
+        this.alertVisible = true;
+        return Task.CompletedTask;
+    }
+
+
+    private Task ShowModal(ModalSize modalSize, int? maxHeight = null, bool centered = false)
+    {
+        this.centered = centered;
+        this.modalSize = modalSize;
+        this.maxHeight = maxHeight;
+        // initialize the list of items
+        Items = new List<TranslationToShowItem>();
+        foreach (Translation trans in StaticObjects.Book.Translations)
+        {
+            if (trans.LanguageID > 0)
+            {
+                bool selected = StaticObjects.Parameters.TranslationsToShowId.Exists(id => id == trans.LanguageID);
+                Items.Add(new TranslationToShowItem { Id = trans.LanguageID, Value = selected, DisplayText = trans.Description });
+            }
+        }
+        StateHasChanged();
+        return ModalTranslationsToShow.Show();
+    }
+
+    private async Task HideModalCancel()
+    {
+        InitializationStatus = Status.Error;
+        await ModalTranslationsToShow.Hide();
+        HandleSendMessage("Translations choice cancelled.");
+        Status status = await DoInitialization();
+    }
+
+    private async Task HideModalOk()
+    {
+        StaticObjects.Parameters.TranslationsToShowId = new List<short>();
+        foreach (TranslationToShowItem translationToShow in Items)
+        {
+            if (translationToShow.Value)
+            {
+                StaticObjects.Parameters.TranslationsToShowId.Add(translationToShow.Id);
+            }
+        }
+        if (StaticObjects.Parameters.TranslationsToShowId.Count == 0)
+        {
+            await ShowAlert(Color.Info, "At least one translation must be checked.");
+            return;
+        }
+        await ModalTranslationsToShow.Hide();
+        InitializationStatus = Status.TranslationsChoiceDone;
+        StaticObjects.Parameters.TranslationsChoiceDone = true;
+        await SettingsService.Store();
+        Status status = await DoInitialization();
+        return;
+    }
+    #endregion
+
+    #region Initialization
+
+
+
+    private async Task<Status> DoInitialization(bool recreate = false)
+    {
+        bool continues = true, ret = false;
+
+        while (continues)
+        {
+            switch (InitializationStatus)
+            {
+                case Status.NotInitialized:
+                    ret = InitializationService.InitLogger();
+                    if (!ret)
+                    {
+                        HandleSendMessage("Init logger failed");
+                        HandleSendMessage("App cannot be started.");
+                        InitializationStatus = Status.Error;
+                        continues = false;
+                    }
+                    else
+                    {
+                        InitializationStatus = Status.LogInitialized;
+                    }
+                    break;
+                case Status.LogInitialized:
+                    ret = await InitializationService.InitParameters();
+                    if (!ret)
+                    {
+                        HandleSendMessage("Parameters initialization failed");
+                        HandleSendMessage("App cannot be started.");
+                        InitializationStatus = Status.Error;
+                        continues = false;
+                    }
+                    else
+                    {
+                        // The persistent data doe not stops execution in case of error
+                        PersistentData.Deserialize();
+                        InitializationStatus = Status.ParametersInitialized;
+                    }
+                    break;
+                case Status.ParametersInitialized:
+                    ret = await InitializationService.InitTranslationsList();
+                    if (!ret)
+                    {
+                        HandleSendMessage("Translation list initialization failed");
+                        HandleSendMessage("App cannot be started.");
+                        InitializationStatus = Status.Error;
+                        continues = false;
+                    }
+                    else
+                    {
+                        InitializationStatus = Status.TranslationsListInitialized;
+                        AmadonEvents.TranslationsListInitialized();
+                    }
+                    break;
+
+                case Status.TranslationsListInitialized:
+                    if (!StaticObjects.Parameters.TranslationsChoiceDone)
+                    {
+                        // To show the modal, initialization loop is stopped
+                        // It will be re-started in the modal ok function
+                        continues = false;
+                        InitializationStatus = Status.WaitingTranslationChoice;
+                        await ShowModal(ModalSize.Large, 50, true);
+                        return Status.WaitingTranslationChoice;
+                    }
+                    else
+                    {
+                        InitializationStatus = Status.TranslationsChoiceDone;
+                    }
+                    break;
+                case Status.TranslationsChoiceDone:
+                    ret = await InitializationService.InitEachTranslation();
+                    if (!ret)
+                    {
+                        HandleSendMessage("Translation list initialization failed");
+                        HandleSendMessage("App cannot be started.");
+                        InitializationStatus = Status.Error;
+                        continues = false;
+                    }
+                    else
+                    {
+                        InitializationStatus = Status.ReadyToGo;
+                        StaticObjects.Parameters.TranslationsChoiceDone = true;
+                        AmadonEvents.InitializationSuccesfully();
+                        continues = false;
+                    }
+                    break;
+
+                case Status.Error:
+                    continues = false;
+                    HandleSendMessage("The app cannot be started.");
+                    break;
+                default:
+                    await ShowAlert(Color.Danger, $"Invalid status inside initialization {InitializationStatus}");
+                    continues = false;
+                    break;
+            }
+        }
+        return InitializationStatus;
+    }
+
+
+    #endregion
+
+    #region Page Events
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        LibraryEventsControl.SendMessage += HandleSendMessage;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //await ShowModal(ModalSize.Large, 50, true);
+            Status status = await DoInitialization();
+        }
+    }
+    #endregion
+
+
+}

@@ -1,0 +1,28 @@
+﻿/* Set the background and border colors */
+textarea.form-control {
+    background-color: #f7f7f7;
+    border-color: #ced4da;
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+}
+
+    /* Remove the default border radius */
+    textarea.form-control:focus {
+        border-radius: 0;
+    }
+
+/* Add padding to the textarea */
+textarea.form-control {
+    padding: 10px;
+}
+
+    /* Add a shadow to the textarea when focused */
+    textarea.form-control:focus {
+        box-shadow: none;
+        border-color: #80bdff;
+    }
+
+    /* Add a placeholder text */
+    textarea.form-control::placeholder {
+        color: #6c757d;
+    }

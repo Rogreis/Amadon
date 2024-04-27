@@ -1,0 +1,159 @@
+﻿@using Blazorise
+
+
+<Accordion>
+    <Collapse Visible="@collapse1Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>Introduction</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <p>The menu bar is the primary way to navigate through the Amadon app. This guide will explain each menu option and its function.</p>
+            <h3>Menu Options</h3>
+            <ImageForHelp RelativeUrl="images/menu.png" Size="ImageForHelp.ImageSize.Full" Alt="The Menu Bar"></ImageForHelp>
+            
+            <ol>
+                <li>
+                    <p><strong>Table of Contents</strong>: The Table of Contents is an organized listing of all the papers and sections within &quot;The Urantia Book&quot;. It provides an overview of the book&#39;s structure and allows you to directly access any section or paper by simply clicking on its title. More details at our &quot;<a href="toc.md">Table of Contents</a>&quot;.</p>
+                </li>
+                <li>
+                    <p><strong>Index</strong>: The Index is an alphabetical listing of the key expressions and subjects throughout &quot;The Urantia Book&quot;. Each subject is linked to its relevant section within the book. Use this feature to quickly find and navigate to specific topics or check more details at our &quot;<a href="index.md">Subject Index Feature</a>&quot;.</p>
+                </li>
+                <li>
+                    <p><strong>Search</strong>: The Search feature allows you to find specific words, phrases, or topics throughout &quot;The Urantia Book&quot;. Powered by Lucene.net, this search engine can handle complex queries and return precise results. You can find more detailed information on how to use this feature in our &quot;<a href="search.md">Search Engine Help Guide</a>&quot;.</p>
+                </li>
+                <li>
+                    <p><strong>Track</strong>: The Track feature is a tool for keeping track of your progress through &quot;The Urantia Book&quot;. As you access any paragraph or section title, the link reference to it is automatically stored in the tracking; you can, then, use this feature to return to read texts. More details at our &quot;<a href="track.md">Track of Paragraphs</a>&quot;. The maximum number of items stored can be changed in the &quot;<a href="settings.md">Settings Page</a>&quot;.</p>
+                </li>
+                <li>
+                    <p><strong>Settings</strong>: In the Settings menu, you can customize the app according to your preferences, like chose the translations and how many columns to show, for example. Any changes made be immediately applied across the app. See &quot;<a href="settings.md">Settings Page</a>&quot;.</p>
+                </li>
+                <li>
+                    <p><strong>Help</strong>: The Help option provides links to context help guide from inside the app and some useful links. If you are having difficulty with any aspect of the app, this should be your first port of call.</p>
+                    <p>Or just hit F1 key at any time.</p>
+                </li>
+            </ol>
+        </CollapseBody>
+    </Collapse>
+
+    <Collapse Visible="@collapse2Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>Navigating the Menu Bar</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <p>To use the menu bar, simply click on the desired option. The corresponding feature will open in the main window of the app.</p>
+            <h3 id="tips-for-using-the-menu-bar">Tips for Using the Menu Bar</h3>
+            <ol>
+                <li>
+                    <p><strong>Explore Each Option</strong>: Don&#39;t be afraid to explore each menu option to familiarize yourself with its functionality. Understanding how to navigate the app will enhance your overall reading experience.</p>
+                </li>
+                <li>
+                    <p><strong>Customize Your Settings</strong>: Make sure to check out the Settings menu to tailor the app to your reading preferences.</p>
+                </li>
+                <li>
+                    <p><strong>Use the Help Option</strong>: If you&#39;re unsure about anything, remember the Help option is there to assist you.</p>
+                </li>
+            </ol>
+            <p>Remember, the goal of the Amadon app is to make your reading experience of &quot;The Urantia Book&quot; as enjoyable and efficient as possible. If you have any questions or need further assistance, don&#39;t hesitate to contact our support team.</p>
+        </CollapseBody>
+    </Collapse>
+
+    <Collapse Visible="@collapse3Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>The Highligth Tool</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/highlight.png" Size="ImageForHelp.ImageSize.Small" Alt="The Highligh Tool"></ImageForHelp>
+
+            <Card Background="Background.Dark">
+                <CardBody>
+                    <CardTitle Size="2">
+                        How to use the Highligth Tool
+                    </CardTitle>
+                    <CardText>
+                        In Amadon, you can easily highlight specific portions of the paper text shown below the input field. This feature allows you to quickly locate and emphasize the content you've entered in the text box.
+                        Enter the desired text or phrase into the input text field.
+                        Click on the "Highlight" button located next to the input field.
+                        The corresponding text in the paper below will be highlighted.
+                    </CardText>
+                </CardBody>
+            </Card>
+
+            <Card Background="Background.Dark">
+                <CardBody>
+                    <CardTitle Size="2">
+                        Using the Enter Key
+                    </CardTitle>
+                    <CardText>
+                        After typing the desired text or phrase into the input text field, simply press the "Enter" key on your keyboard.
+                        The corresponding text in the paper below will be highlighted, just as if you clicked the "Highlight" button.
+                    </CardText>
+                </CardBody>
+            </Card>
+            
+            <Card Background="Background.Dark">
+                <CardBody>
+                    <CardTitle Size="2">
+                        Tips for Effective Text Highlighting
+                    </CardTitle>
+                    <CardText>
+                        <HelpTable MaxColumns=2 FirstColumnAsHeader=false Titles="@Titles" Lines="@LinesForHighligthTips"></HelpTable>
+                    </CardText>
+                </CardBody>
+            </Card>
+
+            <h3>Conclusion:</h3>
+            <p>The text highlighting feature in Amadon provides a seamless way to emphasize and locate specific content in the current paper text only.</p>
+            <p>Whether you're using the "Highlight" button or the convenience of the "Enter" key, this feature enhances your reading and searching experience.</p>
+
+        </CollapseBody>
+    </Collapse>
+
+
+</Accordion>
+
+
+@code {
+
+    bool collapse1Visible = true;
+    bool collapse2Visible = false;
+    bool collapse3Visible = false;
+
+    private List<string> Titles { get; set; } = new List<string>()
+    {
+        "Subject",
+        "Description",
+    };
+
+    private List<List<string>> LinesForHighligthTips = new List<List<string>>()
+    {
+        new List<string>()
+        {
+            "Exact Match",
+            "Ensure that the text you enter in the input field matches the content in the paper text. The highlighting feature looks for an exact match.",
+        },
+        new List<string>()
+        {
+            "Case Sensitivity",
+            "The highlighting is not case-sensitive.",
+        },
+        new List<string>()
+        {
+            "Multiple Occurrences",
+            "If the entered text appears multiple times in the paper text, all occurrences will be highlighted.",
+        },
+        new List<string>()
+        {
+            "Clearing Highlights",
+            "To clear the highlights, simply delete the text from the input field and either click the \"Highlight\" button again or press the \"Enter\" key.",
+        },
+    };
+
+
+
+}

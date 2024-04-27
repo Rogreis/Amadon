@@ -1,0 +1,193 @@
+﻿@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.InterchangeData;
+@using AmadonStandardLib.UbClasses;
+@using Blazorise.TreeView
+
+
+<h5>Table of contents for</h5>
+<h5>@CurrentTranslationTitle:</h5>
+
+@*  Based in:
+    https://blazorise.com/docs/extensions/treeview
+*@
+
+@if (TocGotFromData)
+{
+    <TreeView @ref="@treeViewPrimary" Nodes="ItemsPrimary"
+          GetChildNodes="@(item => item.Children)"
+          HasChildNodes="@(item => item.Children?.Any() == true)"
+          @bind-SelectedNode="SelectedNode"
+          @bind-ExpandedNodes="PersistentData.ExpandedNodesList">
+        <NodeContent>
+            @context.Text
+        </NodeContent>
+    </TreeView>
+}
+
+
+
+@code {
+
+    #region Local Data
+    TreeView<ItemForToc> treeViewPrimary;
+    private string CurrentTranslationTitle = "";
+    private bool InternalSelection = false;
+
+    #endregion
+
+    TOCdata data = new TOCdata();
+    bool TocGotFromData = false;
+
+    IEnumerable<ItemForToc> ItemsPrimary = new ItemForToc[0];
+
+    private ItemForToc selectedNode;
+    private ItemForToc SelectedNode 
+    { 
+        get
+        {
+            return selectedNode;
+        }
+        set
+        {
+            ItemForToc item = value;
+            item.Expanded = true;
+            selectedNode = value;
+            if (!InternalSelection)
+                AmadonEvents.NewTocEntry(item.Entry);
+        }
+    }
+
+    private ItemForToc GetPaperItem(int i, short paperNo) => ItemsPrimary.ToList()[i].WorkChildren.ToList().Find(item => item.Entry.Paper == paperNo);
+
+    /// <summary>
+    /// Find the ItemForToc equivalent to TOC_Entry
+    /// </summary>
+    /// <param name="entry"></param>
+    /// <param name="selectedNodes"></param>
+    /// <returns></returns>
+    private ItemForToc FindItemByTocEntry(TOC_Entry entry, List<ItemForToc> selectedNodes)
+    {
+        ItemForToc itemPaper = null;
+        if (entry.Paper == 0)
+        {
+            itemPaper = ItemsPrimary.First();
+            selectedNodes.Add(itemPaper);
+        }
+        else if (entry.Paper < 32)
+        {
+            selectedNodes.Add(ItemsPrimary.ToList()[1]);
+            itemPaper = GetPaperItem(1, entry.Paper);
+            selectedNodes.Add(itemPaper);
+        }
+        else if (entry.Paper < 57)
+        {
+            selectedNodes.Add(ItemsPrimary.ToList()[2]);
+            itemPaper = GetPaperItem(2, entry.Paper);
+            selectedNodes.Add(itemPaper);
+        }
+        else if (entry.Paper < 120)
+        {
+            selectedNodes.Add(ItemsPrimary.ToList()[3]);
+            itemPaper = GetPaperItem(3, entry.Paper);
+            selectedNodes.Add(itemPaper);
+        }
+        else
+        {
+            selectedNodes.Add(ItemsPrimary.ToList()[4]);
+            itemPaper = GetPaperItem(4, entry.Paper);
+            selectedNodes.Add(itemPaper);
+        }
+        if (itemPaper == null) return null;
+
+        if (entry.Section > 0)
+        {
+            ItemForToc itemSection = itemPaper.WorkChildren.ToList().Find(i => i.Entry.Section == entry.Section);
+            if (itemSection == null)
+            {
+                return null;
+            }
+            selectedNodes.Add(itemSection);
+            return itemSection;
+        }
+        return itemPaper;
+    }
+
+    private void ExpandNodes(TOC_Entry entry)
+    {
+        InternalSelection = true;
+        List<ItemForToc> selectedNodes = new List<ItemForToc>();
+        ItemForToc item = FindItemByTocEntry(entry, selectedNodes);
+        if (item != null)
+        {
+            item.Expanded = true;
+            SelectedNode = item;
+            //PersistentData.ExpandedNodesList = new List<ItemForToc>();
+            selectedNodes.Reverse();
+            foreach (ItemForToc itemReverted in selectedNodes)
+            {
+                itemReverted.Expanded = true;
+                PersistentData.ExpandedNodesList.Add(itemReverted);
+            }
+
+        }
+        InternalSelection = false;
+    }
+
+    public async Task UpdateAll()
+    {
+        // Needs update?
+        data.UpdateTocId1 = data.TranslationId1 != StaticObjects.Book.GetTocSearchTranslation().LanguageID;
+
+        if (!data.UpdateTocId1)
+        {
+            // TOC already created
+            return;
+        }
+        data.TranslationId1 = StaticObjects.Book.GetTocSearchTranslation().LanguageID;
+        data = await TOC_Service.GetTocTable(data);
+        ItemsPrimary = data.TocId1;
+        ExpandNodes(StaticObjects.Parameters.Entry);
+        TocGotFromData = true;
+        try
+        {
+            StateHasChanged();
+        }
+        catch { }
+    }
+
+
+    private void TranslationTocChanged()
+    {
+        Task.Run(async () => await UpdateAll()).GetAwaiter().GetResult();
+    }
+
+    public void OnNewTocEntry(TOC_Entry entry)
+    {
+        StaticObjects.Parameters.Entry = entry;
+        TranslationTocChanged();
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        AmadonEvents.OnTranslationTocChanged += TranslationTocChanged;
+        AmadonEvents.OnNewTocEntry += OnNewTocEntry;
+        AmadonEvents.OnNewSubjectIndexEntry += OnNewTocEntry;
+        AmadonEvents.OnNewSearchEntry += OnNewTocEntry;
+        AmadonEvents.OnNewTrackEntry += OnNewTocEntry;
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            CurrentTranslationTitle = StaticObjects.Book.GetTocSearchTranslation().Description;
+            await UpdateAll();
+        }
+    }
+
+}

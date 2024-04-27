@@ -1,0 +1,339 @@
+﻿@using Amadon.Controls.Fields;
+@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using System.Diagnostics;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+
+
+<Heading Size="HeadingSize.Is3">Settings</Heading>
+
+@if (SettingsPageInitialized)
+{
+    <Tooltip Text="Show a translation in the middle column" Placement="TooltipPlacement.Bottom">
+        <Switch TValue="bool" Checked="@ShowMiddleTranslation" CheckedChanged="@OnShowMiddleTranslation">Show Middle Translation</Switch>
+    </Tooltip>
+
+    <Tooltip Text="Show a translation in the right column" Placement="TooltipPlacement.Bottom">
+        <Switch TValue="bool" Checked="@ShowRightTranslation" CheckedChanged="@OnShowRightTranslation">Show Right Translation</Switch>
+    </Tooltip>
+
+    <Divider />
+
+
+    @*   <Tooltip Text="Use dark mode" Placement="TooltipPlacement.Bottom">
+        <SwitchControl @ref=SwitchDarkMode LabelText="Dark Mode" IsToggled=@parameters.UseDarkThemme SwitchType=(int)SwitchType.UseDarkTheme />
+    </Tooltip>
+*@
+    <Tooltip Text="Show the paragraph identificantion (number and page)" Placement="TooltipPlacement.Bottom">
+        <Switch TValue="bool" Checked="@ShowParagraphIdentification" CheckedChanged="@OnShowParagraphIdentification">Show Paragraph Number</Switch>
+    </Tooltip>
+
+ @*   <Tooltip Text="Use serif font" Placement="TooltipPlacement.Bottom">
+        <Switch TValue="bool" Checked="@UseSerifFont" CheckedChanged="@OnUseSerifFont">Use Serif Font</Switch>
+    </Tooltip>
+*@
+
+    <Divider />
+
+    <Table>
+        <TableRow>
+            <TableRowCell>
+                <Tooltip Text="Number of items shown in the search tool" Placement="TooltipPlacement.Bottom">
+                    <Field>
+                        <FieldLabel Class="bg-dark text-white">Search Page Size</FieldLabel>
+                        <NumericEdit TValue="int" MinValue="10" MaxValue="100" Value=@SearchPageSize ValueChanged="@OnSearchPageSize"></NumericEdit>
+                    </Field>
+                </Tooltip>
+            </TableRowCell>
+            <TableRowCell>
+                <Tooltip Text="Max search and track data stored to be reused" Placement="TooltipPlacement.Bottom">
+                    <Field>
+                        <FieldLabel Class="bg-dark text-white">Max Expression</FieldLabel>
+                        <NumericEdit TValue="int" MinValue="10" MaxValue="100" Value=@MaxExpressionsStored ValueChanged="@OnMaxExpressionsStored"></NumericEdit>
+                    </Field>
+                </Tooltip>
+            </TableRowCell>
+        </TableRow>
+    </Table>
+
+    <Divider />
+
+    <br />
+    <Tooltip Text="Choose translation for left column" Placement="TooltipPlacement.Bottom">
+        <TranslationSelect @ref="TranslationSelectLeft" Label="Left Translation" Id="LeftTrans" SelectedValueChanged="@OnSelectedLeftTranslationChanged" SelectedValue="StaticObjects.Parameters.LanguageIDLeftTranslation"></TranslationSelect>
+    </Tooltip>
+    <br />
+    <Tooltip Text="Choose translation for middle column" Placement="TooltipPlacement.Bottom">
+        <TranslationSelect @ref="TranslationSelectMiddle" Label="Middle Translation" Id="MiddleTrans" SelectedValueChanged="@OnSelectedMiddleTranslationChanged" SelectedValue="StaticObjects.Parameters.LanguageIDMiddleTranslation"></TranslationSelect>
+    </Tooltip>
+    <br />
+    <Tooltip Text="Choose translation for right column" Placement="TooltipPlacement.Bottom">
+        <TranslationSelect @ref="TranslationSelectRight" Label="Right Translation" Id="RightTrans" SelectedValueChanged="@OnSelectedRightTranslationChanged" SelectedValue="StaticObjects.Parameters.LanguageIDRightTranslation"></TranslationSelect>
+    </Tooltip>
+    <br />
+
+    <Label>Translation for Table of Contents or Search Text:</Label>
+    <Tooltip Text="Enable the translations choice to be shown next time the app is started" Placement="TooltipPlacement.Top">
+        <Row>
+            <Column>
+                <Switch @ref="@SwitchUseTransLeft" TValue="bool" Checked="@SwitchUseTransLeftValue" CheckedChanged="@OnUseTransLeft">Left</Switch>
+            </Column>
+            <Column>
+                <Switch @ref="@SwitchUseTransMiddle" TValue="bool" Checked="@SwitchUseTransMiddleValue" CheckedChanged="@OnUseTransMiddle">Middle</Switch>
+            </Column>
+            <Column>
+                <Switch @ref="@SwitchUseTransRight" TValue="bool" Checked="@SwitchUseTransRightValue" CheckedChanged="@OnUseTransRight">Right</Switch>
+            </Column>
+        </Row>
+    </Tooltip>
+    <br />
+
+    <Tooltip Text="" Placement="TooltipPlacement.Bottom">
+        <Switch TValue="bool" Checked="@RedisplayTranslationsChoice" CheckedChanged="@OnRedisplayTranslationsChoiceChanged">Display translation options in the next run</Switch>
+    </Tooltip>
+
+}
+
+
+
+
+@code {
+
+    private class SelectTranslation
+    {
+        public short Id { get; set; }
+        public string Descrition { get; set; }
+    }
+
+    private bool RedisplayTranslationsChoice = false;
+
+    private bool ShowMiddleTranslation = false;
+    private bool ShowRightTranslation = false;
+    private bool ShowParagraphIdentification = true;
+    private bool UseSerifFont = true;
+    private int SearchPageSize = 100;
+    private int MaxExpressionsStored = 100;
+
+    TranslationSelect TranslationSelectLeft;
+    TranslationSelect TranslationSelectMiddle;
+    TranslationSelect TranslationSelectRight;
+    Select<SelectTranslation> SelectMiddleTranslation;
+
+    SelectTranslation selectedLeftValue;
+    SelectTranslation selectedMiddleValue;
+    SelectTranslation selectedRightValue;
+    bool SettingsPageInitialized = false;
+
+    private List<SelectTranslation> items;
+
+    private SwitchControl SwitchDarkMode;
+    private SwitchControl SwitchSerifFont;
+
+
+    Switch<bool> SwitchUseTransLeft;
+    Switch<bool> SwitchUseTransMiddle;
+    Switch<bool> SwitchUseTransRight;
+    bool SwitchUseTransLeftValue = false;
+    bool SwitchUseTransMiddleValue = false;
+    bool SwitchUseTransRightValue = false;
+
+
+    Task OnUseTransLeft(bool value)
+    {
+        if (value)
+        {
+            SwitchUseTransLeftValue = true;
+            SwitchUseTransMiddleValue = false;
+            SwitchUseTransRightValue = false;
+            StaticObjects.Parameters.TranslationForTableOfContents = TranslatioForTocSearch.Left;
+        }
+        return Task.CompletedTask;
+    }
+
+    Task OnUseTransMiddle(bool value)
+    {
+        if (value)
+        {
+            SwitchUseTransLeftValue = false;
+            SwitchUseTransMiddleValue = true;
+            SwitchUseTransRightValue = false;
+            StaticObjects.Parameters.TranslationForTableOfContents = TranslatioForTocSearch.Middle;
+        }
+        return Task.CompletedTask;
+    }
+    Task OnUseTransRight(bool value)
+    {
+        if (value)
+        {
+            SwitchUseTransLeftValue = false;
+            SwitchUseTransMiddleValue = false;
+            SwitchUseTransRightValue = true;
+            StaticObjects.Parameters.TranslationForTableOfContents = TranslatioForTocSearch.Right;
+        }
+        return Task.CompletedTask;
+    }
+
+
+    private async Task StoreParameters()
+    {
+        bool ret = await InitializationService.StoreParameters();
+    }
+
+
+    Task OnRedisplayTranslationsChoiceChanged(bool value)
+    {
+        RedisplayTranslationsChoice = value;
+        StaticObjects.Parameters.TranslationsChoiceDone = !value;
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    bool settingCheckedValue = false;
+
+    Task OnSelectedLeftTranslationChanged(int value)
+    {
+        StaticObjects.Parameters.LanguageIDLeftTranslation = (short)value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnSelectedMiddleTranslationChanged(int value)
+    {
+        StaticObjects.Parameters.LanguageIDMiddleTranslation = (short)value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnSelectedRightTranslationChanged(int value)
+    {
+        StaticObjects.Parameters.LanguageIDRightTranslation = (short)value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnShowMiddleTranslation(bool value)
+    {
+        ShowMiddleTranslation = value;
+        StaticObjects.Parameters.ShowMiddle = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnShowRightTranslation(bool value)
+    {
+        ShowRightTranslation = value;
+        StaticObjects.Parameters.ShowRight = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnShowParagraphIdentification(bool value)
+    {
+        ShowParagraphIdentification = value;
+        StaticObjects.Parameters.ShowParagraphIdentification = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnUseSerifFont(bool value)
+    {
+        UseSerifFont = value;
+        StaticObjects.Parameters.UseSerifFont = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnMaxExpressionsStored(int value)
+    {
+        MaxExpressionsStored = StaticObjects.Parameters.MaxExpressionsStored = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+    Task OnSearchPageSize(int value)
+    {
+        SearchPageSize = StaticObjects.Parameters.SearchPageSize = value;
+        AmadonEvents.TranslationsToShowChanged();
+        Task.Run(async () => await StoreParameters()).GetAwaiter().GetResult();
+        return Task.CompletedTask;
+    }
+
+
+
+    public void Initialize()
+    {
+        items = new List<SelectTranslation>();
+        foreach (short id in StaticObjects.Parameters.TranslationsToShowId)
+        {
+            Translation trans = StaticObjects.Book.GetTranslation(id);
+            items.Add(new SelectTranslation() { Id = id, Descrition = trans.Description });
+        }
+
+        SettingsPageInitialized = true;
+        StateHasChanged();
+
+
+        TranslationSelectLeft.SetData(StaticObjects.Parameters.LanguageIDMiddleTranslation);
+        TranslationSelectMiddle.SetData(StaticObjects.Parameters.LanguageIDMiddleTranslation);
+        TranslationSelectRight.SetData(StaticObjects.Parameters.LanguageIDMiddleTranslation);
+
+        ShowMiddleTranslation = StaticObjects.Parameters.ShowMiddle;
+        ShowRightTranslation = StaticObjects.Parameters.ShowRight;
+        ShowParagraphIdentification = StaticObjects.Parameters.ShowParagraphIdentification;
+        UseSerifFont = StaticObjects.Parameters.UseSerifFont;
+        SearchPageSize = StaticObjects.Parameters.SearchPageSize;
+        MaxExpressionsStored = StaticObjects.Parameters.MaxExpressionsStored;
+        switch (StaticObjects.Parameters.TranslationForTableOfContents)
+        {
+            case TranslatioForTocSearch.Left:
+                SwitchUseTransLeftValue = true;
+                SwitchUseTransMiddleValue = false;
+                SwitchUseTransRightValue = false;
+                break;
+            case TranslatioForTocSearch.Middle:
+                SwitchUseTransLeftValue = false;
+                SwitchUseTransMiddleValue = true;
+                SwitchUseTransRightValue = false;
+                break;
+            case TranslatioForTocSearch.Right:
+                SwitchUseTransLeftValue = false;
+                SwitchUseTransMiddleValue = false;
+                SwitchUseTransRightValue = true;
+                break;
+        }
+
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        AmadonEvents.OnInitializationSuccesfully += Initialize;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && StaticObjects.Parameters.AppInitialized)
+        {
+            if (!SettingsPageInitialized)
+            {
+                await Task.Delay(1);
+                Debug.WriteLine("OnAfterRenderAsync");
+                Initialize();
+            }
+            StateHasChanged();
+        }
+    }
+
+
+
+}

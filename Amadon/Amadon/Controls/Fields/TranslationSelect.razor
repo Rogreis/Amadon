@@ -1,0 +1,85 @@
+﻿@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+
+@if (TranslationSelectComponentInitialized)
+{
+ @*   <div class="form-group">
+        <select class="form-control" id="@Id" @bind="@SelectedValue">
+            @foreach (var item in Items)
+            {
+                <option value="@item.Id">@item.Description</option>
+            }
+        </select>
+    </div>
+*@
+
+    <label for="@Id" >@Label</label>
+    <Select ElementId="@Id" TValue="int" SelectedValue="@SelectedValue" SelectedValueChanged="@OnSelectedValueChanged">
+        @foreach (var item in Items)
+        {
+            <SelectItem Value="@item.Id">@item.Description</SelectItem>
+        }
+    </Select>
+
+
+}
+
+
+
+@code {
+    private class TranslationDropdownItem
+    {
+        public short Id { get; set; }
+        public string Description { get; set; }
+    }
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public string Id { get; set; }
+
+
+    [Parameter]
+    public int SelectedValue { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedValueChanged { get; set; }
+
+    // Local variables
+
+    private List<TranslationDropdownItem> Items { get; set; }
+    private bool TranslationSelectComponentInitialized = false;
+
+    async Task OnSelectedValueChanged(int value)
+    {
+        SelectedValue = value;
+        await SelectedValueChanged.InvokeAsync((short)value);
+        return; // Task.CompletedTask;
+    }
+
+    private async Task OnSelectedValueChanged(ChangeEventArgs e)
+    {
+        if (short.TryParse(e.Value.ToString(), out short value))
+        {
+            SelectedValue = value;
+            await SelectedValueChanged.InvokeAsync(value);
+        }
+    }
+
+    public void SetData(short idSelected)
+    {
+        Items = new List<TranslationDropdownItem>();
+        Translation transEnglish = StaticObjects.Book.GetTranslation(0);
+        Items.Add(new TranslationDropdownItem() { Id = 0, Description = transEnglish.Description });
+        foreach (short idTransToShow in StaticObjects.Parameters.TranslationsToShowId)
+        {
+            Translation trans = StaticObjects.Book.GetTranslation(idTransToShow);
+            Items.Add(new TranslationDropdownItem() { Id = idTransToShow, Description = trans.Description });
+        }
+        TranslationSelectComponentInitialized = true;
+        StateHasChanged();
+    }
+
+
+}

@@ -1,0 +1,195 @@
+﻿@using Amadon.Controls.Notes
+@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using Amadon.Controls;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.InterchangeData;
+@using AmadonStandardLib.UbClasses;
+@using System.Diagnostics;
+@inject IJSRuntime JSRuntime;
+
+
+<div id="rightColumn" class="black splitRight right mt-0 p-0 bg-dark text-white">
+    <div class="row">
+        @if (@PaperLines != null)
+        {
+            <Table ElementId="@tableId" Borderless Resizable ResizeMode="TableResizeMode.Columns" FullWidth Class="bg-dark text-white">
+            <TableHeader>
+                @foreach (string line in @PaperLines.Titles)
+                    {
+                        @((MarkupString)@line)
+                    }
+                </TableHeader>
+                <TableBody>
+                    @foreach (string line in @PaperLines.Lines)
+                    {
+                        <TableRow>
+                            @((MarkupString)@line)
+                        </TableRow>
+                    }
+                </TableBody>
+            </Table>
+        }
+
+        <HelpModal @ref="ModalHelpControl"></HelpModal>
+
+        <NotesModal @ref="NotesModalControl"></NotesModal>
+
+    </div>
+
+</div>
+
+
+@code {
+    private PaperTextFormatted PaperLines { get; set; }
+    private string ExpressionToHighlight { get; set; }
+    private HelpModal ModalHelpControl;
+    private NotesModal NotesModalControl;
+    string anchor = "";
+
+
+    Table MainTextTable;
+    const string tableId = "tableText";
+
+
+    [JSInvokable]
+    public static void HandleF1KeyPress()
+    {
+        // Handle the F1 key press here
+        AmadonEvents.HelpContext();
+    }
+
+
+    #region Current page search and hightlight functions
+
+
+    private void UnhighlightAll()
+    {
+        for (int i = 0; i < PaperLines.Titles.Count; i++)
+        {
+            PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        }
+        for (int i = 0; i < PaperLines.Lines.Count; i++)
+        {
+            PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        }
+        PersistentData.GenericData.HighlightedText = string.Empty;
+        StateHasChanged();
+    }
+
+    private void OnHighlightExpression(string expression)
+    {
+        if (!string.IsNullOrEmpty(expression))
+        {
+            PersistentData.GenericData.HighlightedText = expression;
+            for (int i = 0; i < PaperLines.Titles.Count; i++)
+            {
+                PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+                PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
+            }
+            for (int i = 0; i < PaperLines.Lines.Count; i++)
+            {
+                PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+                PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
+            }
+            StateHasChanged();
+        }
+        else
+        {
+            UnhighlightAll();
+        }
+    }
+
+    #endregion
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await JSRuntime.InvokeVoidAsync("setupF1KeyListener");
+        LibraryEventsControl.RedrawText += EventsControl_RedrawText;
+        AmadonEvents.OnNewTocEntry += OnNewTocEntry;
+        AmadonEvents.OnNewSubjectIndexEntry += OnNewTocEntry;
+        AmadonEvents.OnNewSearchEntry += OnNewTocEntry;
+        AmadonEvents.OnNewTrackEntry += OnNewTocEntry;
+        AmadonEvents.OnTranslationsToShowChanged += TranslationsToShowChanged;
+        AmadonEvents.OnHighlightExpression += OnHighlightExpression;
+        AmadonEvents.OnShowHelpPage += ShowHelp;
+        AmadonEvents.OnNewParagraphIdent += OnNewParagraphIdent;
+        AmadonEvents.OnOpenEditNoteText += OnOpenEditNoteText;
+    }
+
+
+    private async void GetTexts()
+    {
+        PaperLines = await TextService.GetHtml();
+        await Task.Delay(1);
+    }
+
+    private async void JumpToAnchor(TOC_Entry entry)
+    {
+        await Task.Delay(1);
+        await JSRuntime.InvokeVoidAsync("jumpToAnchor", $"{entry.Anchor}");
+    }
+
+
+    private void ShowPage()
+    {
+        GetTexts();
+        OnHighlightExpression(PersistentData.GenericData.HighlightedText);
+        AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
+        StateHasChanged();
+        JumpToAnchor(StaticObjects.Parameters.Entry);
+    }
+
+
+    protected void ShowHelp(string helpPage)
+    {
+        ModalHelpControl.ShowModal(helpPage);
+        StateHasChanged();
+    }
+
+
+    protected void EventsControl_RedrawText()
+    {
+        ShowPage();
+    }
+
+    private void TranslationsToShowChanged()
+    {
+        ShowPage();
+    }
+
+    public void OnNewTocEntry(TOC_Entry entry)
+    {
+        StaticObjects.Parameters.Entry = entry;
+        ShowPage();
+    }
+
+
+    public void OnNewParagraphIdent(TOC_Entry entry)
+    {
+        StaticObjects.Parameters.Entry = entry;
+        ShowPage();
+    }
+
+    private void OnOpenEditNoteText(UserNote note, bool readOnly)
+    {
+        NotesModalControl.ShowEditNotes(note, readOnly);
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+             await Task.Run(() =>
+            {
+                GetTexts();
+            });
+            AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
+            StateHasChanged();
+        }
+     }
+}

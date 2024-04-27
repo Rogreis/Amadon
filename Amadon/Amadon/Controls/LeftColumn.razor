@@ -1,0 +1,96 @@
+﻿@using Amadon.Controls.Notes
+@using Amadon.Controls.Settings
+@using AmadonStandardLib.Helpers;
+
+<div id="leftColumn">
+    @if (ControlName == AmandonComponentNames.ControlToc)
+    {
+        <TableOfContents></TableOfContents>
+    }
+    else if (ControlName == AmandonComponentNames.ControlIndex)
+    {
+        <TubIndex></TubIndex>
+    }
+    else if (ControlName == AmandonComponentNames.ControlStudies)
+    {
+        <Studies></Studies>
+    }
+    else if (ControlName == AmandonComponentNames.ControlNotes)
+    {
+        <NotesTopics></NotesTopics>
+    }
+    else if (ControlName == AmandonComponentNames.ControlSearch)
+    {
+        <Search></Search>
+    }
+@*     else if (ControlName == AmandonComponentNames.ControlTrack)
+    {
+        <Track></Track>
+    }
+ *@    else if (ControlName == AmandonComponentNames.ControlSettings)
+    {
+        <SettingsFields></SettingsFields>
+    }
+    else if (ControlName == AmandonComponentNames.ControlHelp)
+    {
+        <HelpControl></HelpControl>
+    }
+</div>
+
+
+@code {
+
+    private string ControlName { get; set; } = "";
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        AmadonEvents.OnTopNavCommand += AmadonEvents_OnTopNavCommand;
+        AmadonEvents.OnHelpContext += AmadonEvents_OnHelpContext;
+        await base.OnInitializedAsync();
+        SetControl(StaticObjects.Parameters.LastLeftControl);
+        return;
+    }
+
+    private void AmadonEvents_OnTopNavCommand(string controlName)
+    {
+        SetControl(controlName);
+    }
+
+    private void AmadonEvents_OnHelpContext()
+    {
+        switch (ControlName)
+        {
+            case AmandonComponentNames.ControlToc:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.TocHelp);
+                break;
+            case AmandonComponentNames.ControlIndex:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.IndexHelp);
+                break;
+            case AmandonComponentNames.ControlSearch:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.SearchHelp);
+                break;
+            case AmandonComponentNames.ControlTrack:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.TrackHelp);
+                break;
+            case AmandonComponentNames.ControlNotes:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.NotesHelp);
+                break;
+            case AmandonComponentNames.ControlSettings:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.SettingsHelp);
+                break;
+            default:
+                AmadonEvents.ShowHelpPage(AmandonHelpPageNames.StartingHelp);
+                break;
+        }
+    }
+
+    public void SetControl(string controlName)
+    {
+        ControlName = controlName;
+        StaticObjects.Parameters.LastLeftControl = controlName;
+        StateHasChanged();
+    }
+
+
+}

@@ -1,0 +1,55 @@
+﻿
+<label for="@Id">@Label</label>
+<Select ElementId="@Id" TValue="int" SelectedValue="@SelectedValue" SelectedValueChanged="@OnSelectedValueChanged" Size="Size.Small">
+    @if (FileItems != null)
+    {
+        @foreach (var fileName in FileItems)
+        {
+            <SelectItem Value="@fileName">@fileName</SelectItem>
+        }
+    }
+</Select>
+
+<br />
+
+
+@code {
+    public string Id { get; set; } = "fileElement";
+
+    [Parameter]
+    public string Label { get; set; }
+
+    [Parameter]
+    public int SelectedValue { get; set; }
+
+    [Parameter]
+    public EventCallback<int> SelectedValueChanged { get; set; }
+
+    // Local variables
+
+    public List<string> FileItems { get; set; } = new List<string>();
+
+    private bool TranslationSelectComponentInitialized = false;
+
+    async Task OnSelectedValueChanged(int value)
+    {
+        SelectedValue = value;
+        await SelectedValueChanged.InvokeAsync(value);
+        return; // Task.CompletedTask;
+    }
+
+
+    // private async Task OnSelectedValueChanged(ChangeEventArgs e)
+    // {
+    //     if (e.Value != null)
+    //     {
+    //         SelectedValue = e.Value.ToString();
+    //         await SelectedValueChanged.InvokeAsync(SelectedValue);
+    //     }
+    // }
+
+    public void SetData(List<string> fileList)
+    {
+        FileItems= fileList;
+    }
+}

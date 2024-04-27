@@ -1,0 +1,210 @@
+﻿@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.InterchangeData;
+@using AmadonStandardLib.UbClasses;
+@using Blazorise
+
+
+<style>
+
+    .scrollable-list-group {
+        max-height: 200px; /* Adjust based on your desired visible area */
+        overflow-y: auto; /* Enable vertical scroll */
+    }
+
+</style>
+
+<h5>Search the subject index titles:</h5>
+
+<TextEdit @ref="TextToSearchObject" Text="@PersistentData.GenericData.TextSearchForIndexTitles" Placeholder="Search the subject index titles..." Size="Size.Small" TextChanged="@OnTextToSearchChanged" />
+
+
+@if (PersistentData.GenericData.dropdownSubjectTitlesVisible)
+{
+    <label>Subject index entries found</label>
+    <ListGroup @ref="@SubjectsGroupList" Class="scrollable-list-group" Mode="ListGroupMode.Selectable" Flush Scrollable SelectedItem="@SelectedItem">
+        @foreach (TubIndexSubjects item in PersistentData.GenericData.IndexItemsFound)
+        {
+            <ListGroupItem Color="Color.Dark" Clicked="() => OnItemSelected(item.Subject)">@item.Subject</ListGroupItem>
+        }
+    </ListGroup>
+    <br />
+}
+
+@if (PersistentData.GenericData.browserSubjectsFound)
+{
+    <div class="row">
+
+        <h3 style="color:gold">@PersistentData.GenericData.TubIndex.Title</h3>
+
+        @foreach (IndexDetails detail in @PersistentData.GenericData.TubIndex.Details)
+        {
+            <blockquote>
+                @if (detail.DetailType == 2)
+                {
+                    @((MarkupString)("See Also" + @space))
+                    <Blazorise.Link Clicked="@(()=> NewSubjectIndex(@detail.Links[0]))">@detail.Links[0]</Blazorise.Link>
+                }
+                else
+                {
+                    @detail.Text
+                }
+                @if (detail.DetailType != 2)
+                {
+                    @foreach (string link in detail.Links)
+                    {
+                        @((MarkupString)@space)
+                        <Blazorise.Link Clicked="@(()=> ButtonClicked(@link))">@link</Blazorise.Link>
+                    }
+                }
+            </blockquote>
+        }
+    </div>
+}
+
+<Alert Color="@AlertColor" @bind-Visible="@alertVisible">
+    <AlertMessage>
+        @AlertMessage
+    </AlertMessage>
+    <CloseButton />
+</Alert>
+
+
+@code {
+    bool alertVisible = false;
+    string AlertMessage = "";
+    Color AlertColor = Color.Success;
+    string space = "&nbsp;";
+    ListGroup SubjectsGroupList;
+    string SelectedItem = "";  // the current selected item in the list group
+
+    TextEdit TextOutputObject;
+    TextEdit TextToSearchObject;
+    LuceneIndexSearch luceneIndex = new LuceneIndexSearch();
+
+    SearchIndexService searchIndex = new SearchIndexService();
+
+    string selectedValue;
+
+    private Task ShowAlert(Color color, string message)
+    {
+        this.AlertColor = color;
+        this.AlertMessage = message;
+        this.alertVisible = true;
+        return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Search the subject index for a subject string
+    /// </summary>
+    /// <param name="subject">The subject to be searched - or its starting</param>
+    /// <param name="clearItemsFound">Optionally can clear the old list</param>
+    /// <returns></returns>
+    private async Task SeachIndexForSubject(string subject, bool clearItemsFound)
+    {
+        if (clearItemsFound)
+        {
+            PersistentData.GenericData.IndexItemsFound.Clear();
+        }
+
+        SearchIndexData data = new SearchIndexData();
+        data.Query = subject;
+        data = await SearchIndexService.DoSearch(data);
+        if (data == null)
+        {
+            await ShowAlert(Color.Danger, "Error executing subject index search");
+        }
+        else if (string.IsNullOrEmpty(data.ErrorMessage))
+        {
+            // Increment the list tasking care of duplicated items
+            PersistentData.GenericData.IndexItemsFound.AddRange(data.ResultsList);
+            //PersistentData.GenericData.IndexItemsFound.Distinct().OrderBy(item => item.Subject).ToList();
+
+            PersistentData.GenericData.IndexItemsFound= 
+              PersistentData.GenericData.IndexItemsFound.GroupBy(i => i.Subject)
+                                                        .Select(g => g.First())
+                                                        .OrderBy(i => i.Subject)
+                                                        .ToList();
+
+            PersistentData.GenericData.dropdownSubjectTitlesVisible = true;
+            if (data.ResultsList.Count > 0)
+            {
+                SelectedItem = data.ResultsList.First().Subject;
+            }
+        }
+        else
+        {
+            await ShowAlert(Color.Danger, data.ErrorMessage);
+            PersistentData.GenericData.dropdownSubjectTitlesVisible = false;
+        }
+    }
+
+    /// <summary>
+    /// Called when user select a subject from the found list of
+    /// </summary>
+    /// <param name="selectedItem"></param>
+    private async void OnItemSelected(string selectedItem)
+    {
+        PersistentData.GenericData.IndexItemsFound.ForEach(item => item.IsActive = false);
+        TubIndexSubjects item = PersistentData.GenericData.IndexItemsFound.Find(i => i.Subject == selectedItem);
+        if (item != null)
+        {
+            item.IsActive = true;
+            PersistentData.GenericData.TubIndex = await Task.Run(() => SearchIndexService.GetSubjectItemsToShow(item.Subject));
+            PersistentData.GenericData.browserSubjectsFound = PersistentData.GenericData.TubIndex != null;
+            StateHasChanged();
+        }
+    }
+
+    /// <summary>
+    /// Called when user type some entry in the text box
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    async Task OnTextToSearchChanged(string value)
+    {
+        PersistentData.GenericData.TextSearchForIndexTitles = value;
+        if (!string.IsNullOrEmpty(value) && value.Length >= 3)
+        {
+            PersistentData.GenericData.IndexItemsFound.Clear();
+            await SeachIndexForSubject(value, true);
+            StateHasChanged();
+        }
+    }
+
+
+
+    protected void ButtonClicked(string option)
+    {
+        AmadonEvents.NewSubjectIndexEntry(TOC_Entry.FromHref(option));
+    }
+
+    /// <summary>
+    /// Used to implement the "See Also" in the index
+    /// </summary>
+    /// <param name="subject"></param>
+    protected void NewSubjectIndex(string subject)
+    {
+        // Add items to found list
+        Task.Run(() => SeachIndexForSubject(subject, false));
+        // Show the See Also item
+        OnItemSelected(subject);
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        if (firstRender)
+        {
+            StateHasChanged();
+        }
+    }
+
+}

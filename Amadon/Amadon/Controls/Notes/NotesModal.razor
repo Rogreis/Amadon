@@ -1,0 +1,115 @@
+﻿@inject IJSRuntime JSRuntime
+
+@using AmadonStandardLib.InterchangeData;
+@using Blazorise.RichTextEdit
+
+<Modal @ref="modalRef" Class="modal-xl ModalSize fade">
+    <ModalContent ElementId="ModalContent" Class="ModalBorder">
+        <ModalHeader Class="AmadonDark HeaderColors">
+            <ModalTitle>@Title</ModalTitle>
+            <CloseButton />
+        </ModalHeader>
+        <ModalBody Class="AmadonDark scrollable-modal-body">
+
+
+            <RichTextEdit @ref="richTextEditRef"
+                          id="richTextEditElement"
+                          Theme="RichTextEditTheme.Snow"
+                          PlaceHolder="Type your note here..."
+                          SubmitOnEnter="false"
+                          ToolbarPosition="Placement.Top">
+                <Toolbar>
+                    <RichTextEditToolbarGroup>
+                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
+                        <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+                            <RichTextEditToolbarSelectItem Value="small" />
+                            <RichTextEditToolbarSelectItem Selected />
+                            <RichTextEditToolbarSelectItem Value="large" />
+                            <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
+                        </RichTextEditToolbarSelect>
+                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
+                    </RichTextEditToolbarGroup>
+
+@*                    <!-- Custom toolbar content -->
+                    <RichTextEditToolbarGroup Float="Float.End">
+                        <Button onClick="window.open('https://www.quilljs.com/','quilljs')"><Icon Name="IconName.InfoCircle" /></Button>
+                        <Button Clicked="@OnSave"><Icon Name="IconName.Save" /></Button>
+                    </RichTextEditToolbarGroup>
+*@
+                    </Toolbar>
+                <Editor></Editor>
+            </RichTextEdit>
+
+        </ModalBody>
+        <ModalFooter Class="AmadonDark">
+             <Button Color="Color.Secondary" Clicked="@HideModalCancel" Size="Size.Small">Cancel</Button>
+             <Button Color="Color.Primary" Clicked="@HideModalOk" Size="Size.Small">@OkButtonText</Button>
+        </ModalFooter>
+    </ModalContent>
+</Modal>
+
+<script>
+     function changeRichTextEditColor(elementId, color) {
+         const element = document.getElementById(elementId);
+         if (element) {
+             element.style.color = color;
+         }
+     }
+ </script>
+
+
+ @code {
+
+    private Modal modalRef;
+    private string Title { get; set; } = "Notes";
+    protected RichTextEdit richTextEditRef;
+    protected bool IsToDelete;
+    private UserNote Note = null;
+
+    private string OkButtonText { get { return IsToDelete ? "Delete" : "Save"; } }
+
+    private async Task ChangeTextColor()
+    {
+        await JSRuntime.InvokeVoidAsync("changeRichTextEditColor", "richTextEditElement", "white");
+    }
+
+
+    public void ShowEditNotes(UserNote note, bool isToDelete)
+    {
+        IsToDelete = isToDelete;
+        Note = note;
+        Title = note.Title;
+        richTextEditRef.SetHtmlAsync(note.Notes);
+
+        if (!modalRef.Visible)
+        {
+            modalRef.Show();
+        }
+        else
+        {
+            modalRef.Hide();
+            modalRef.Show();
+        }
+        //ChangeTextColor();
+        StateHasChanged();
+        Task.Delay(1);
+    }
+
+    public async Task HideModalCancel()
+    {
+        await modalRef.Hide();
+        AmadonEvents.EditNoteClosed(Note, true);
+    }
+
+    public async Task HideModalOk()
+    {
+        Note.Notes = await richTextEditRef.GetHtmlAsync();
+        await richTextEditRef.ClearAsync();
+        await modalRef.Hide();
+        AmadonEvents.EditNoteClosed(Note, false);
+    }
+
+
+}

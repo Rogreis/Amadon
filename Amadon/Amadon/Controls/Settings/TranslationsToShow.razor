@@ -1,0 +1,60 @@
+﻿@using AmadonStandardLib.Classes;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+@using Blazorise
+@using Controls.Settings
+
+<h5>Translations to Show</h5>
+
+
+@if (translationListCreated && Items != null)
+{
+    <Table Borderless="true" Striped="true">
+        <TableBody>
+            <TableRow>
+                <TableRowCell Class="text-white bg-dark">
+                    @for (int i = 0; i <= firstTransColumnNo; i++)
+                    {
+                        TranslationToShowItem item = Items[i];
+                        <Check TValue="bool" @bind-Checked="@item.Value">@item.DisplayText</Check>
+                    }
+                </TableRowCell>
+                <TableRowCell Class="text-white bg-dark">
+                    @for (int i = firstTransColumnNo + 1; i < Items.Count; i++)
+                    {
+                        TranslationToShowItem item = Items[i];
+                        <Check TValue="bool" @bind-Checked="@item.Value">@item.DisplayText</Check>
+                    }
+                </TableRowCell>
+            </TableRow>
+        </TableBody>
+    </Table>
+}
+
+@code {
+
+    [Parameter]
+    public List<TranslationToShowItem> Items { get; set; }
+
+    private int firstTransColumnNo { get => Items == null? 0 : Convert.ToInt32(Math.Ceiling(((double)Items.Count) / 2.0)); }
+
+    private bool translationListCreated { get; set; } = false;
+
+    private event FieldChangedDelegate FieldChanged = null;
+
+
+    private void HandleTranslationsListInitialized()
+    {
+        translationListCreated = true;
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        AmadonEvents.OnTranslationsListInitialized += HandleTranslationsListInitialized;
+        StateHasChanged();
+    }
+
+
+}

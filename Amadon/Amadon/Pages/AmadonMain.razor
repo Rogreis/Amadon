@@ -1,0 +1,53 @@
+﻿@page "/"
+@using Amadon.Controls;
+@using Amadon.Controls.Settings
+@using Amadon.Services;
+@using AmadonStandardLib.Classes;
+@using AmadonStandardLib.Helpers;
+
+@using Blazorise
+
+<div class="container_fluid  h-100">
+    @if (!AmadonMainPageInitialized)
+    {
+        <InitializationControl></InitializationControl>
+    }
+    else
+    {
+        <div class="row ">
+            <div class="col-md-3 bg-dark text-white splitLeft left">
+                <LeftColumn></LeftColumn>
+            </div>
+            <div class="col-md-9 bg-dark text-white splitRight right mt-0">
+                <BookText></BookText>
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+
+    // Local blazor components
+    private LeftColumn LeftControl;
+
+    private bool AmadonMainPageInitialized = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        AmadonEvents.OnInitializationSuccesfully += OnInitializationSuccesfully;
+    }
+
+    protected void OnInitializationSuccesfully()
+    {
+        AmadonMainPageInitialized = true;
+        StateHasChanged();
+        Task.Delay(1);
+    }
+
+
+
+}

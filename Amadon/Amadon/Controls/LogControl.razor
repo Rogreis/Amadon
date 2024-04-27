@@ -1,0 +1,22 @@
+﻿
+<textarea class="form-control text-white bg-dark" rows="20" @bind="LogText"  readonly></textarea>
+
+@code {
+
+    [Parameter]
+    public string LogText { get; set; } = "";
+
+    private bool _visibility = true;
+
+
+    public async Task AppendLogText(string message)
+    {
+        await InvokeAsync(() =>
+        {
+            LogText += message + "\n";
+            StateHasChanged();
+        });
+        await Task.Yield();
+    }
+
+}

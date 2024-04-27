@@ -1,0 +1,106 @@
+﻿@using Blazorise
+
+
+<h3 id="introduction">Introduction</h3>
+<p>The Settings page is where you can customize your reading experience in the Amadon app. Here&#39;s what you can do:</p>
+
+<ImageForHelp RelativeUrl="images/Settings.png" Size="ImageForHelp.ImageSize.Full" Alt="The Settings Page"></ImageForHelp>
+
+<Accordion>
+    <Collapse Visible="@collapse1Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+    <AccordionToggle>Reading Options</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/Settings01.png" Size="ImageForHelp.ImageSize.Small" Alt="Reading Options"></ImageForHelp>
+            <ol>
+                <li>
+                    <p><strong>Show/Hide Middle Translation</strong>: This option allows you to toggle the visibility of the middle translation of &quot;The Urantia Book&quot;. If you wish to view two translations at once, you can choose to show the middle translation. Otherwise, you can hide it for a less cluttered view.</p>
+                </li>
+                <li>
+                    <p><strong>Show/Hide Right Translation</strong>: Similar to the middle translation, this option lets you toggle the visibility of the right translation. Show or hide this based on your reading preferences.</p>
+                </li>
+                <li>
+                    <p><strong>Show/Hide Paragraph Number</strong>: If you prefer a minimalist view or if you&#39;re using a reading tool to listen to the translations, you can choose to hide the paragraph numbers. To display the numbers for reference, select &#39;Show&#39;.</p>
+                </li>
+            </ol>
+        </CollapseBody>
+    </Collapse>
+
+    <Collapse Visible="@collapse2Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>Updated Settings Options</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/Settings02.png" Size="ImageForHelp.ImageSize.Small" Alt="Updated Settings Options"></ImageForHelp>
+            <ol>
+                <li>
+                    <p><strong>Search Page Size</strong>: This setting allows you to adjust the maximum number of paragraphs a search page will contain. By controlling the page size, you can manage the volume of search results that are displayed at once, thereby making the results easier to sift through. To modify the Search Page Size, navigate to this option in the Settings, enter your preferred number of paragraphs, and save the changes.</p>
+                </li>
+                <li>
+                    <p><strong>Max Expression</strong>: The Max Expression setting is related to the maximum number of expressions that can be stored for the Search Engine or the Subjects Index search for titles. This means you can control how many past search expressions or titles the system will remember for future use. To modify the Max Expression, navigate to this option in the Settings, enter your preferred number of expressions, and save the changes.    </p>
+                </li>
+            </ol>
+        </CollapseBody>
+    </Collapse>
+    <Collapse Visible="@collapse3Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is3">
+                <AccordionToggle>Translation Choices</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/Settings03.png" Size="ImageForHelp.ImageSize.Small" Alt="Translation Choices"></ImageForHelp>
+            <ol>
+                <li>
+                    <p><strong>Left Translation Choice</strong>: The left translation is mandatory in our layout. However, you can select which translation to display on the left from the available options.</p>
+                </li>
+                <li>
+                    <p><strong>Middle Translation Choices</strong>: You can choose which translation to display in the middle position. If you&#39;ve chosen to show this column, select your preferred version from the available options.</p>
+                </li>
+                <li>
+                    <p><strong>Right Translation Choices</strong>: You can also choose which translation to display in the right position. If you&#39;ve chosen to show this translation, select your preferred version from the available options.</p>
+                </li>
+            </ol>
+
+            <p>Here you can see the translations options open and the selection for &#39;Spanish 2021&#39;.</p>
+            <ImageForHelp RelativeUrl="images/Settings04.png" Size="ImageForHelp.ImageSize.Small" Alt="How to select a translation"></ImageForHelp>
+        </CollapseBody>
+    </Collapse>
+
+    <Collapse Visible="@collapse4Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is3">
+                <AccordionToggle>Search, Contents and App Load Options</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/Settings05.png" Size="ImageForHelp.ImageSize.Small" Alt="Search, Contents and App Load Options"></ImageForHelp>
+            <p><strong>Table Of Contents and Search Engine Translation</strong>: This setting allows you to choose the translation used in the Table of Contents and the Search Engine. This ensures that your search results and table of contents match the translation you are most comfortable with. Your choices are</p>
+            <ol>
+                <li>Use the mandatory always shown left translation.</li>
+                <li>Use the middle translation when shown.</li>
+                <li>Use the right translation when shown.</li>
+                <li><strong>Choose Translations on App Load</strong>: Upon the first launch of the app, you can choose a subset of &quot;The Urantia Book&quot; translations to use. Once this is set, it&#39;s usually fixed. However, if you want to change your choices, you can toggle this option on. Next time you load the app, you&#39;ll be prompted to choose your translations again.</li>
+            </ol>
+            <h3 id="how-to-modify-settings">How to Modify Settings</h3>
+            <p>To change a setting, navigate to the &#39;Settings&#39; option in the menu bar. Find the feature you wish to modify, then select or deselect the checkbox for toggle features or choose from a dropdown list for selection features. Your changes will be automatically saved and applied throughout the app.</p>
+            <p>Remember, the Settings page is designed to make your reading experience more personalized and enjoyable. Feel free to experiment with different settings to see what works best for you. If you need further help, don&#39;t hesitate to contact our  <a href="https://github.com/Rogreis/UbStudyHelpMAUI/issues">support team</a> or send an email to rogreis at gmail dot com.</p>
+        </CollapseBody>
+    </Collapse>
+</Accordion>
+
+
+@code {
+
+    bool collapse1Visible = true;
+    bool collapse2Visible = false;
+    bool collapse3Visible = false;
+    bool collapse4Visible = false;
+
+
+}

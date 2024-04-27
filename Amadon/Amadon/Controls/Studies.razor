@@ -1,0 +1,104 @@
+﻿@using AmadonStandardLib.Helpers;
+@using Microsoft.Maui.Controls;
+
+
+<h3>Studies</h3>
+
+@code {
+
+    // public static FormattedString ConvertHtml(string html)
+    // {
+    //     // var formattedString = new FormattedString();
+    //     // var doc = new HtmlDocument();
+    //     // doc.LoadHtml(html);
+
+    //     // ProcessNode(doc.DocumentNode, formattedString);
+
+    //     // return formattedString;
+    // }
+
+    // private static void ProcessNode(HtmlNode node, FormattedString formattedString)
+    // {
+    //     foreach (var child in node.ChildNodes)
+    //     {
+    //         switch (child.Name.ToLower())
+    //         {
+    //             case "a":
+    //                 formattedString.Spans.Add(CreateLinkSpan(child));
+    //                 break;
+    //             case "b":
+    //             case "strong":
+    //                 formattedString.Spans.Add(CreateBoldSpan(child));
+    //                 break;
+    //             case "i":
+    //             case "em":
+    //                 formattedString.Spans.Add(CreateItalicSpan(child));
+    //                 break;
+    //             case "u":
+    //                 formattedString.Spans.Add(CreateUnderlineSpan(child));
+    //                 break;
+    //             case "#text":
+    //                 formattedString.Spans.Add(new Span { Text = child.InnerText });
+    //                 break;
+    //             case "br":
+    //                 formattedString.Spans.Add(new Span { Text = Environment.NewLine });
+    //                 break;
+    //             // Add more cases here for other HTML elements
+    //             default:
+    //                 ProcessNode(child, formattedString);
+    //                 break;
+    //         }
+    //     }
+    // }
+
+    // private static Span CreateLinkSpan(HtmlNode node)
+    // {
+    //     var span = new Span
+    //         {
+    //             Text = node.InnerText,
+    //             TextDecorations = TextDecorations.Underline,
+    //             TextColor = Colors.Blue
+    //         };
+
+    //     if (node.Attributes["href"]?.Value is string href)
+    //     {
+    //         span.GestureRecognizers.Add(new TapGestureRecognizer
+    //             {
+    //                 Command = new Command(() => OpenUrl(href))
+    //             });
+    //     }
+
+    //     return span;
+    // }
+
+    // private static Span CreateBoldSpan(HtmlNode node) => new Span { Text = node.InnerText, FontWeight = FontWeight.Bold };
+
+    // private static Span CreateItalicSpan(HtmlNode node) => new Span { Text = node.InnerText, FontAttributes = FontAttributes.Italic };
+
+    // private static Span CreateUnderlineSpan(HtmlNode node) => new Span { Text = node.InnerText, TextDecorations = TextDecorations.Underline };
+
+    // private static void OpenUrl(string url)
+    // {
+    //     try
+    //     {
+    //         Launcher.OpenAsync(new Uri(url));
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         // Handle exceptions
+    //     }
+    // }
+
+
+
+    // public async Task<string> ConvertHtml(string html)
+    // {
+    //     await Html2Rtf.ProcessHtmlPage("");
+
+    //     var formattedString = new FormattedString();
+
+    //     return formattedString.ToString();
+    // }
+
+
+}

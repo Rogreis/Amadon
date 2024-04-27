@@ -1,0 +1,76 @@
+﻿@using AmadonStandardLib.Classes;
+
+<Check TValue="bool" Checked="@_isToggled" CheckedChanged="@OnRememberMeChanged">@LabelText</Check>
+
+@code {
+
+    private string _labelText = "";
+    private bool _isToggled = false;
+ 
+    private bool isChecked;
+
+    public event FieldChangedDelegate FieldChanged = null;
+
+    [Parameter]
+    public string LabelText
+    {
+        get { return _labelText; }
+        set { _labelText = value; }
+    }
+
+    [Parameter]
+    public int SwitchType { get; set; } = -1;
+
+    [Parameter]
+    public bool IsToggled
+    {
+        get { return _isToggled; }
+        set 
+        { 
+            if (_isToggled != value)
+            {
+                _isToggled = value;
+                FieldChanged?.Invoke();
+            }
+        }
+    }
+
+ 
+    void OnRememberMeChanged(bool value)
+    {
+        if (_isToggled != value)
+        {
+            _isToggled = value;
+            FieldChanged?.Invoke();
+        }
+     }
+
+
+    public void SetValue(bool value)
+    {
+        IsToggled = value;
+    }   
+
+    public bool GetValue()
+    {
+        return IsToggled;
+    }
+
+    //private void HandleCheckboxChange(ChangeEventArgs e)
+    //{
+    //    //  @onchange="HandleCheckboxChange"
+    //}
+
+    //protected override async Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    //if (firstRender)
+    //    //{
+    //    //    // Wait for the button to be rendered
+    //    //    await Task.Delay(1);
+    //    //    StateHasChanged();
+    //    //}
+    //}
+
+
+
+}

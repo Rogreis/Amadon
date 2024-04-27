@@ -1,0 +1,71 @@
+﻿@using Blazorise
+
+<style>
+
+    .barlink-hover:hover {
+        cursor: pointer;
+        color: var(--bs-warning) !important;
+    }
+</style>
+
+<Bar Breakpoint="Breakpoint.Desktop"
+     Background="Background.Dark"
+     ThemeContrast="ThemeContrast.Dark">
+    <BarToggler />
+    <BarMenu>
+        <BarStart>
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.StartingHelp))" Title="Go to help first page">Home</BarLink>
+            </BarItem>
+
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.MenuBarHelp))" Title="Go to help about the menu bar">Menu Bar</BarLink>
+            </BarItem>
+
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.TocHelp))" Title="Go to table of contents help">TOC</BarLink>
+            </BarItem>
+
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.IndexHelp))" Title="Go to subject index help">Index</BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.SearchHelp))" Title="Go to search feature help">Search</BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.TrackHelp))" Title="Go to tracking history help">Track</BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink Class="barlink-hover" Clicked="@(()=> FireHelpEvent(AmandonHelpPageNames.SettingsHelp))" Title="Go to settings help">Settings</BarLink>
+            </BarItem>
+        </BarStart>
+    </BarMenu>
+</Bar>
+
+
+
+
+
+
+@code {
+    private bool ControlNameValid(string name)
+    {
+        return name == AmandonHelpPageNames.TocHelp ||
+               name == AmandonHelpPageNames.IndexHelp ||
+               name == AmandonHelpPageNames.SearchHelp ||
+               name == AmandonHelpPageNames.TrackHelp ||
+               name == AmandonHelpPageNames.SettingsHelp ||
+               name == AmandonHelpPageNames.MenuBarHelp ||
+               name == AmandonHelpPageNames.StartingHelp;
+    }
+
+
+    private void FireHelpEvent(string eventName)
+    {
+        if (ControlNameValid(eventName))
+        {
+            AmadonEvents.ShowHelpPage(eventName);
+        }
+    }
+
+}

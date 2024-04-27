@@ -1,0 +1,97 @@
+﻿@using Blazorise
+
+<Accordion>
+
+    <Collapse Visible="@collapse1Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>Which is the subject index</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ImageForHelp RelativeUrl="images/Index.png" Size="ImageForHelp.ImageSize.Full" Alt="The subject index Page"></ImageForHelp>
+            <p>The Subject Index is a crucial feature of our application designed to provide you with quick access to specific topics across &quot;The Urantia Book&quot;. Each entry in the index is composed of a key expression and the subject, with a clickable link below the subject. This guide will assist you in understanding how to effectively use this feature.</p>
+        </CollapseBody>
+    </Collapse>
+
+
+    <Collapse Visible="@collapse2Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>How to Use the Subject Index</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <p><strong>Navigate to the Subject Index</strong>: This can typically be found in the <a href="menubar.md">menu bar</a> of the application, labelled as &#39;Index&#39;.</p>
+            <h3 id="using-the-subject-index">Using the Subject Index</h3>
+            <ImageForHelp RelativeUrl="images/Index01.png" Size="ImageForHelp.ImageSize.Small" Alt="Index contents"></ImageForHelp>
+            <ol>
+                <li>
+                    <p><strong>Search Term</strong>: Enter a search term of at least three letters into the search field. As you type, the app will automatically start generating concise titles that match your search term, populating the following combobox field with these results.</p>
+                </li>
+                <li>
+                    <p><strong>Title Selection</strong>: The combobox will display a list of concise titles found based on the letters you&#39;ve entered. These titles represent groups of subjects within the book. Select a title from the dropdown list, and the page below will be automatically populated with the relevant subject entries.  </p>
+                </li>
+                <li>
+                    <p><strong>Subject Entries Page</strong>: On this page, you&#39;ll see a list of short subject descriptions, each followed by a link. These links lead to the corresponding passages in &quot;The Urantia Book&quot;. This expanded view contains all entries related to the chosen subject. These entries indicate where in &quot;The Urantia Book&quot; the subject occurs, giving you direct access to every mention of the subject across the entire book.</p>
+                </li>
+                <li>
+                    <p><strong>Link to Text</strong>: Click on the links provided if the subject matches what you&#39;re interested in what will take you directly to the relevant section of &quot;The Uantia Book&quot; that will be displayed in the column or columns to the right. Each clicked link not only opens the corresponding text but also gets recorded in the &quot;Tracking&quot; page for future reference.  The link may be a specific paper number, a section name, or paragraph.</p>
+                </li>
+            </ol>
+        </CollapseBody>
+    </Collapse>
+
+    <Collapse Visible="@collapse3Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is1">
+                <AccordionToggle>Tips for Using the Subject Index</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <ol>
+                <li>
+                    <p><strong>Start Broad</strong>: If you&#39;re not exactly sure what you&#39;re looking for, start with a broad key expression that encompasses a larger theme or topic. This can help narrow down your search.</p>
+                </li>
+                <li>
+                    <p><strong>Use the Search Function</strong>: The Subject Index is extensive, hard to be used in a paper book, then you can use the built-in search function to find specific subjects.</p>
+                </li>
+                <li>
+                    <p><strong>Follow the Links</strong>: Don&#39;t be afraid to follow the links to the subjects. These will take you directly to the corresponding content in &quot;The Urantia Book&quot;.</p>
+                </li>
+            </ol>
+        </CollapseBody>
+    </Collapse>
+    <Collapse Visible="@collapse4Visible">
+        <CollapseHeader Class="HeaderColors">
+            <Heading Size="HeadingSize.Is3">
+                <AccordionToggle>Troubleshooting</AccordionToggle>
+            </Heading>
+        </CollapseHeader>
+        <CollapseBody Class="AmadonDark">
+            <p>If you&#39;re having trouble with the Subject Index, here are some tips:</p>
+            <ol>
+                <li>
+                    <p><strong>Can&#39;t Find a Topic</strong>: Not all topics may be listed in the Subject Index. If you can&#39;t find a specific topic, try using different keywords or use the main search engine of the application.</p>
+                </li>
+                <li>
+                    <p><strong>Link Doesn&#39;t Work</strong>: If a link doesn&#39;t lead to the correct section, it might be a technical issue. If the problem persists, please report the issue to our support team.</p>
+                </li>
+            </ol>
+            <p>This feature is designed to make your study of &quot;The Urantia Book&quot; more focused and efficient by bringing all instances of a particular subject together, saving you the time and effort of manually searching through the book.</p>
+            <p>If you need further assistance using the Subject Index or any other feature of the Amadon app, please don&#39;t hesitate to contact our support page.</p>
+        </CollapseBody>
+    </Collapse>
+
+</Accordion>
+
+
+@code {
+
+    bool collapse1Visible = true;
+    bool collapse2Visible = false;
+    bool collapse3Visible = false;
+    bool collapse4Visible = false;
+
+
+}

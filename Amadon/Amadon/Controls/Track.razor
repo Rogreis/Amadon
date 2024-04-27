@@ -1,0 +1,71 @@
+﻿@using Amadon.Services;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.UbClasses;
+<h3>Tracking</h3>
+
+@if (showTrackList)
+{
+    @foreach (string line in @trackList)
+    {
+        string link = @line.Substring(0, 11);
+        string text = @line.Remove(0, 11);
+        <Card WhiteText class="bg-dark">
+            <CardBody>
+                <CardText>
+                    <Button Color="Color.Primary" Outline Size="Size.Small" Margin="Margin.Is2" Clicked="@(()=> ButtonClicked(@link))">@Ident(link) <Icon Name="IconName.ArrowRight" /></Button>
+                    @((MarkupString)@text)
+                    <br />
+                </CardText>
+            </CardBody>
+        </Card>
+    }
+}
+
+
+@code
+{
+    private List<string> trackList;
+    private bool showTrackList = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        AmadonEvents.OnShowTrack += OnShowTrack;
+    }
+
+    private string Ident(string link)
+    {
+        return TOC_Entry.FromHref(link).ParagraphIDNoPage;
+    }
+
+    private async void ShowTrack()
+    {
+        showTrackList = false;
+        StateHasChanged();
+        trackList = await TrackService.GetAllEntries();
+        showTrackList = true;
+        StateHasChanged();
+    }
+
+    private void OnShowTrack()
+    {
+        ShowTrack();
+    }
+
+    protected void ButtonClicked(string option)
+    {
+        AmadonEvents.NewTrackEntry(TOC_Entry.FromHref(option));
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            ShowTrack();
+        }
+    }
+
+
+}

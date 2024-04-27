@@ -1,0 +1,53 @@
+﻿@if (!string.IsNullOrEmpty(ImageDataUrl))
+{
+    <p>
+    @if (Size == ImageSize.Full)
+    {
+        <Image Source="@ImageDataUrl" Text="@Alt" Display="Display.Block" Width="Width.Is75" />
+    }
+    else
+    {
+        <Image Source="@ImageDataUrl" Text="@Alt" Display="Display.Block" Width="Width.Is25" />
+    }
+    </p>
+}
+
+
+@code {
+    private string ImageDataUrl = "";
+
+    public enum ImageSize
+    {
+        Small,
+        Full
+    }
+
+
+    [Parameter]
+    public string RelativeUrl { get; set; } = "";
+
+    [Parameter]
+    public string Alt { get; set; } = "";
+
+
+    [Parameter]
+    public ImageSize Size { get; set; } = ImageSize.Full;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var assembly = typeof(Main).Assembly;
+        // Reource name format: Amadon.wwwroot.images.Settings01.png
+
+        using var stream = assembly.GetManifestResourceStream($"Amadon.wwwroot.{RelativeUrl.Replace("/", ".")}");
+        if (stream != null)
+        {
+            var bytes = new byte[stream.Length];
+            await stream.ReadAsync(bytes, 0, (int)stream.Length);
+            ImageDataUrl = $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
+        }
+    }
+
+
+}

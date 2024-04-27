@@ -1,0 +1,260 @@
+﻿@using Amadon.Services;
+@using AmadonStandardLib.Helpers;
+@using AmadonStandardLib.InterchangeData;
+@using AmadonStandardLib.UbClasses;
+@using Blazorise.DataGrid
+@using Amadon.Controls.Fields;
+@inject IJSRuntime JsRuntime
+
+<h3>Notes for Paper @currentPaper</h3>
+<FileSelector @ref="@fileSelector" Label="Choose a notes file:" SelectedValue="@notesFileNameIndex" SelectedValueChanged="@OnSelectedValueChanged"></FileSelector>
+@if (isLoading)
+{
+    <Button Color="Color.Success" Size="Size.Small" Loading>Creating</Button>
+}
+else
+{
+    <Button Color="Color.Success" Clicked="@(()=> NewNote())" Size="Size.Small">New</Button>
+}
+<Button Color="Color.Primary" Disabled="@buttonsEnabled" Clicked="@(()=> EditeNote(selectedUserNote))" Size="Size.Small">Edit Title</Button>
+<Button Color="Color.Danger" Disabled="@buttonsEnabled" Clicked="@(()=> DeleteNote(selectedUserNote))" Size="Size.Small">Delete</Button>
+
+<DataGrid @ref="@NotesDataGrid"
+          TItem="UserNote"
+          FixedHeader
+           Data="@Notes"
+ @bind-SelectedRow="@selectedUserNote"
+           RowContextMenu="@OnRowContextMenu"
+           RowContextMenuPreventDefault="true"
+          Editable
+          Responsive
+          Hoverable
+           CommandMode="DataGridCommandMode.ButtonRow"
+          Sortable
+           SortMode="DataGridSortMode.Single"
+ @onmouseover="AddDoubleClickListener">
+
+     <DataGridColumns>
+         <DataGridColumn Field="@nameof(UserNote.Reference)" Caption="Reference" Editable Sortable="true">
+         </DataGridColumn>
+         <DataGridColumn Field="@nameof(UserNote.Title)" Caption="Title" Editable Sortable="true" />
+     </DataGridColumns>
+
+     <PageButtonTemplate>
+         <Span TextColor="TextColor.Success">
+             @context.PageNumber
+         </Span>
+     </PageButtonTemplate>
+
+ </DataGrid>
+
+
+ @if (showContextMenu)
+{
+    <Div Position="Position.Fixed" Background="Background.Danger" Style="@($"left:{contextMenuPos.X}px;top:{contextMenuPos.Y}px;")">
+        <ListGroup>
+            <ListGroupItem Clicked="@(()=>OnContextItemEditClicked(contextMenuUserNote))">
+                <Icon Name="IconName.Edit" TextColor="TextColor.Secondary" /> Edit
+            </ListGroupItem>
+            <ListGroupItem Clicked="@(()=>OnContextItemDeleteClicked(contextMenuUserNote))">
+                <Icon Name="IconName.Delete" TextColor="TextColor.Danger" /> Delete
+            </ListGroupItem>
+        </ListGroup>
+    </Div>
+}
+
+@code {
+
+    private UserNote selectedUserNote;
+    private int notesFileNameIndex = -1;
+    private string selectedTab = "notes";
+    private bool isLoading;
+    private bool isEditing;
+    private bool buttonsEnabled = false;
+    private string notesFileName = "UserNotes";
+
+
+    InputFile fileInput;
+    FileSelector fileSelector;
+
+    private string currentPaper = "";
+
+    private List<UserNote> Notes { get; set; } = new List<UserNote>();
+
+    private DataGrid<UserNote> NotesDataGrid;
+
+
+    private bool showContextMenu = false;
+    UserNote contextMenuUserNote;
+    System.Drawing.Point contextMenuPos;
+
+    private Task OnSelectedTabChanged(string name)
+    {
+        selectedTab = name;
+        return Task.CompletedTask;
+    }
+
+    private void OnSelectedValueChanged(int value)
+    {
+        if (value >= 0)
+        {
+            StaticObjects.Parameters.NotesFile = PersistentNotes.NoteFilesList[value];
+            PersistentNotes.Deserialize(StaticObjects.Parameters.NotesFile);
+            buttonsEnabled = true;
+            StateHasChanged();
+        }
+    }
+
+
+
+    private async Task AddDoubleClickListener()
+    {
+        var dataGridElementId = NotesDataGrid.ElementId;
+        await JsRuntime.InvokeVoidAsync("addDoubleClickListener", dataGridElementId, DotNetObjectReference.Create(this));
+    }
+
+    Task OnChanged(InputFileChangeEventArgs e)
+    {
+        return Task.CompletedTask;
+    }
+
+
+    [JSInvokable]
+    public void OnRowDoubleClicked(int rowIndex)
+    {
+        UserNote note = Notes.Skip(rowIndex - 1).FirstOrDefault();
+        AmadonEvents.OpenEditNoteText(note, false);
+    }
+
+    private void SaveNotes()
+    {
+        // Save the notes
+        PersistentNotes.Serialize(notesFileName);
+    }
+
+    private void NewNote()
+    {
+        isLoading = true;
+        StateHasChanged();
+
+        PersistentNotes.NotesList.Notes.Add(new UserNote() { Entry = StaticObjects.Parameters.Entry, Title = $"Notes {PersistentNotes.NotesCount() + 1}", Notes = "" });
+        Notes = PersistentNotes.NotesList.Notes.FindAll(n => n.Entry.Paper == StaticObjects.Parameters.Entry.Paper);
+        Notes.Sort((n1, n2) => n1.Entry.CompareTo(n2.Entry));
+        NotesDataGrid.Refresh();
+        SaveNotes();
+
+        isLoading = false;
+        StateHasChanged();
+    }
+
+    private void EditeNote(UserNote note)
+    {
+        buttonsEnabled = false;
+        isEditing = true;
+        NotesDataGrid.Edit(note);
+        NotesDataGrid.Refresh();
+        StateHasChanged();
+        SaveNotes();
+    }
+
+    private void DeleteNote(UserNote note)
+    {
+        buttonsEnabled = false;
+        isEditing = false;
+        AmadonEvents.OpenEditNoteText(note, true);
+        NotesDataGrid.Refresh();
+        StateHasChanged();
+    }
+
+    private void ModalClosed(UserNote note, bool cancel)
+    {
+        buttonsEnabled = true;
+        if (cancel)
+        {
+            StateHasChanged();
+            return;
+        }
+        if (!isEditing)
+        {
+            UserNote notetoDelete = PersistentNotes.NotesList.Notes.Find(n => n.Id == note.Id);
+            if (notetoDelete != null) PersistentNotes.NotesList.Notes.Remove(notetoDelete);
+        }
+        SaveNotes();
+        NotesDataGrid.Refresh();
+        StateHasChanged();
+    }
+
+
+
+    protected void OnContextItemEditClicked(UserNote note)
+    {
+        EditeNote(note);
+        showContextMenu = false;
+    }
+
+    protected void OnContextItemDeleteClicked(UserNote note)
+    {
+        DeleteNote(note);
+        showContextMenu = false;
+    }
+
+    protected Task OnRowContextMenu(DataGridRowMouseEventArgs<UserNote> eventArgs)
+    {
+        showContextMenu = true;
+        contextMenuUserNote = eventArgs.Item;
+        contextMenuPos = eventArgs.MouseEventArgs.Client;
+        return Task.CompletedTask;
+    }
+
+    private void SelectNotesd(TOC_Entry entry)
+    {
+        Notes = PersistentNotes.NotesList.Notes.FindAll(n => n.Entry.Paper == entry.Paper);
+        Notes.Sort((n1, n2) => n1.Entry.CompareTo(n2.Entry));
+        currentPaper = entry.Paper.ToString();
+    }
+
+    private void OnNewTocEntry(TOC_Entry entry)
+    {
+        SelectNotesd(entry);
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        //AmadonEvents.OnNewTocEntry += OnNewTocEntry;
+        //AmadonEvents.OnNewSubjectIndexEntry += OnNewTocEntry;
+        //AmadonEvents.OnNewSearchEntry += OnNewTocEntry;
+        //AmadonEvents.OnNewTrackEntry += OnNewTocEntry;
+        //AmadonEvents.OnNewParagraphIdent += OnNewTocEntry;
+        AmadonEvents.OnUpdateParagraphIdent += OnNewTocEntry;
+        AmadonEvents.OnEditNoteClosed += ModalClosed;
+
+        if (string.IsNullOrWhiteSpace(StaticObjects.Parameters.NotesFile))
+        {
+            StaticObjects.Parameters.NotesFile = PersistentNotes.NoteFilesList[0];
+        }
+        else
+        {
+            notesFileName = StaticObjects.Parameters.NotesFile;
+            notesFileNameIndex = StaticObjects.Parameters.NotesFile.IndexOf(notesFileName);
+        }
+        PersistentNotes.Deserialize(notesFileName);
+        SelectNotesd(StaticObjects.Parameters.Entry);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+        SelectNotesd(StaticObjects.Parameters.Entry);
+        if (firstRender)
+        {
+            fileSelector.FileItems.Clear();
+            fileSelector.FileItems.AddRange(PersistentNotes.GetNoteFilesList());
+            StateHasChanged();
+        }
+    }
+}
+
+
+

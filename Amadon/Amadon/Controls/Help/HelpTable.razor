@@ -1,0 +1,64 @@
+﻿<Table>
+    <TableHeader ThemeContrast="ThemeContrast.Dark">
+        <TableRow>
+            @foreach(string title in Titles)
+            {
+                <TableHeaderCell>@title</TableHeaderCell>
+            }
+        </TableRow>
+    </TableHeader>
+    <TableBody>
+        @foreach (List<string> lineValues in Lines)
+        {
+            <TableRow>
+                @if (MaxColumns > 0 && MaxColumns <= 3)
+                {
+                    @for (int i = 0; i < MaxColumns; i++)
+                    {
+                        string value = lineValues[i];
+                        if (i == 0)
+                        {
+                            @if (FirstColumnAsHeader)
+                            {
+                                <TableRowHeader>@value</TableRowHeader>
+                            }
+                            else
+                            {
+                                <TableRowCell>@value</TableRowCell>
+                            }
+                        }
+                        if (i == 1)
+                        {
+                            <TableRowCell>@value</TableRowCell>
+                        }
+                        if (i == 2)
+                        {
+                            <TableRowCell><code>@value</code></TableRowCell>
+                        }
+                    }
+                }
+                else
+                {
+                    <TableRowCell><code>"Invalid value for MaxColumns; must be bigger than 0 and less than 3"</code></TableRowCell>
+                }
+            </TableRow>
+        }
+    </TableBody>
+</Table>
+
+
+@code {
+
+    [Parameter]
+    public List<string> Titles { get; set; } = new List<string>();
+
+    [Parameter]
+    public List<List<string>> Lines { get; set; } = new List<List<string>>();
+
+    [Parameter]
+    public int MaxColumns { get; set; } = 3;
+
+    [Parameter]
+    public bool FirstColumnAsHeader { get; set; } = true;
+
+}

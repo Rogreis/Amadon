@@ -1,0 +1,29 @@
+﻿
+<div class="input-group input-group-sm mb-3">
+    <span class="input-group-text">@LabelText</span>
+    <label class="switch">
+        <input type="number" class="form-control" id="numberInput" name="numberInput" min=@MinValue max=MaxValue value=@MaxValue>
+    </label>
+</div>
+
+@code {
+
+    private string _labelText = "";
+
+    [Parameter]
+    public string LabelText
+    {
+        get { return _labelText; }
+        set { _labelText = value; }
+    }
+
+    [Parameter]
+    public int MinValue { get; set; } = 1;
+
+    [Parameter]
+    public int MaxValue { get; set; } = 100;
+
+    [Parameter]
+    public int Value { get; set; } = 1;
+
+}
