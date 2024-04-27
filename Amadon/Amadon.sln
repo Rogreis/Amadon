@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amadon", "Amadon\Amadon.csproj", "{F082F67E-1F29-48FE-B3EF-C4423B303225}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmadonStandardLib", "..\AmadonStandardLib\AmadonStandardLib.csproj", "{8B85037C-B049-4588-A4B9-56289CA8FB22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F082F67E-1F29-48FE-B3EF-C4423B303225}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {95004104-7B6F-4934-819A-FA5DB970F18C}
+	EndGlobalSection
+EndGlobal
