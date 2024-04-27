@@ -14,12 +14,12 @@
 *@
 
     <label for="@Id" >@Label</label>
-    <Select ElementId="@Id" TValue="int" SelectedValue="@SelectedValue" SelectedValueChanged="@OnSelectedValueChanged">
+    <Blazorise.Select ElementId="@Id" TValue="int" SelectedValue="@SelectedValue" SelectedValueChanged="@OnSelectedValueChanged">
         @foreach (var item in Items)
         {
-            <SelectItem Value="@item.Id">@item.Description</SelectItem>
+            <Blazorise.SelectItem Value="@item.Id">@item.Description</Blazorise.SelectItem>
         }
-    </Select>
+    </Blazorise.Select>
 
 
 }

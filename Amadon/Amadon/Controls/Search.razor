@@ -4,75 +4,76 @@
 @using AmadonStandardLib.Helpers;
 @using AmadonStandardLib.InterchangeData;
 @using AmadonStandardLib.UbClasses;
+@using Microsoft.AspNetCore.Components.Web
 
-<Container>
-    <Row>
-        <Column>
+<Blazorise.Container>
+    <Blazorise.Row>
+        <Blazorise.Column>
             <h5>Search UB texts for</h5>
             <h5>@CurrentTranslationTitle:</h5>
-            <TextEdit @ref="TextToSearchObject" @bind-Text="@PersistentData.SearchData.QueryString" Placeholder="Search the subject index titles..." Size="Size.Small" @onkeydown="HandleKeyDown" />
-        </Column>
-    </Row>
+            <Blazorise.TextEdit @ref="TextToSearchObject" @bind-Text="@PersistentData.SearchData.QueryString" Placeholder="Search the subject index titles..." Size="Blazorise.Size.Small" @onkeydown="HandleKeyDown" />
+        </Blazorise.Column>
+    </Blazorise.Row>
 
     <br />
-    <Row>
-        <Column>
-            <Tooltip Text="When on, includes the Part I of the Book in the search" Placement="TooltipPlacement.Bottom">
-                <Switch @ref="SwitchPartI" TValue="bool" Checked="@PersistentData.SearchData.Part1Included" CheckedChanged="@OnIncludesPartI">Part I</Switch>
-            </Tooltip>
-            <Tooltip Text="When on, includes the Part III of the Book in the search" Placement="TooltipPlacement.Bottom">
-                <Switch @ref="SwitchPartIII" TValue="bool" Checked="@PersistentData.SearchData.Part3Included" CheckedChanged="@OnIncludesPartIII">Part III</Switch>
-            </Tooltip>
-        </Column>
+    <Blazorise.Row>
+        <Blazorise.Column>
+            <Blazorise.Tooltip Text="When on, includes the Part I of the Book in the search" Placement="Blazorise.TooltipPlacement.Bottom">
+                <Blazorise.Switch @ref="SwitchPartI" TValue="bool" Checked="@PersistentData.SearchData.Part1Included" CheckedChanged="@OnIncludesPartI">Part I</Blazorise.Switch>
+            </Blazorise.Tooltip>
+            <Blazorise.Tooltip Text="When on, includes the Part III of the Book in the search" Placement="Blazorise.TooltipPlacement.Bottom">
+                <Blazorise.Switch @ref="SwitchPartIII" TValue="bool" Checked="@PersistentData.SearchData.Part3Included" CheckedChanged="@OnIncludesPartIII">Part III</Blazorise.Switch>
+            </Blazorise.Tooltip>
+        </Blazorise.Column>
 
-        <Column>
-            <Tooltip Text="When on, includes the Part II of the Book in the search" Placement="TooltipPlacement.Bottom">
-                <Switch @ref="SwitchPartII" TValue="bool" Checked="@PersistentData.SearchData.Part2Included" CheckedChanged="@OnIncludesPartII">Part II</Switch>
-            </Tooltip>
-            <Tooltip Text="When on, includes the Part IV of the Book in the search" Placement="TooltipPlacement.Bottom">
-                <Switch @ref="SwitchPartIV" TValue="bool" Checked="@PersistentData.SearchData.Part4Included" CheckedChanged="@OnIncludesPartIV">Part IV</Switch>
-            </Tooltip>
-        </Column>
-    </Row>
-    <Row>
-        <Tooltip Text="When on, search only in teh current paper" Placement="TooltipPlacement.Bottom">
-            <Switch @ref="SwitchCurrentPaper" TValue="bool" Checked="@PersistentData.SearchData.CurrentPaperOnly" CheckedChanged="@OnSwitchCurrentPaper">Current Paper Only</Switch>
-        </Tooltip>
-    </Row>
-</Container>
+        <Blazorise.Column>
+            <Blazorise.Tooltip Text="When on, includes the Part II of the Book in the search" Placement="Blazorise.TooltipPlacement.Bottom">
+                <Blazorise.Switch @ref="SwitchPartII" TValue="bool" Checked="@PersistentData.SearchData.Part2Included" CheckedChanged="@OnIncludesPartII">Part II</Blazorise.Switch>
+            </Blazorise.Tooltip>
+            <Blazorise.Tooltip Text="When on, includes the Part IV of the Book in the search" Placement="Blazorise.TooltipPlacement.Bottom">
+                <Blazorise.Switch @ref="SwitchPartIV" TValue="bool" Checked="@PersistentData.SearchData.Part4Included" CheckedChanged="@OnIncludesPartIV">Part IV</Blazorise.Switch>
+            </Blazorise.Tooltip>
+        </Blazorise.Column>
+    </Blazorise.Row>
+    <Blazorise.Row>
+        <Blazorise.Tooltip Text="When on, search only in teh current paper" Placement="Blazorise.TooltipPlacement.Bottom">
+            <Blazorise.Switch @ref="SwitchCurrentPaper" TValue="bool" Checked="@PersistentData.SearchData.CurrentPaperOnly" CheckedChanged="@OnSwitchCurrentPaper">Current Paper Only</Blazorise.Switch>
+        </Blazorise.Tooltip>
+    </Blazorise.Row>
+</Blazorise.Container>
 
-<Row>
-    <Column>
-        <Button Outline Size="Size.Small" Margin="Margin.Is2" Color="Color.Primary" @onclick="OnSortClick">@TextInSearchButton</Button>
-        <Button Outline Size="Size.Small" Margin="Margin.Is2" Color="Color.Primary" @onclick="OnSearch">Search</Button>
-    </Column>
-</Row>
+<Blazorise.Row>
+    <Blazorise.Column>
+        <Blazorise.Button Outline Size="Blazorise.Size.Small" Margin="Blazorise.Margin.Is2" Color="Blazorise.Color.Primary" @onclick="OnSortClick">@TextInSearchButton</Blazorise.Button>
+        <Blazorise.Button Outline Size="Blazorise.Size.Small" Margin="Blazorise.Margin.Is2" Color="Blazorise.Color.Primary" @onclick="OnSearch">Search</Blazorise.Button>
+    </Blazorise.Column>
+</Blazorise.Row>
 
 @if (@PersistentData.SearchData.paginationVisible)
 {
-    <Pagination>
-        <PaginationItem Disabled="@IsPageNavigationDisabled(PREVIOUS)" @onclick="Previous">
-            <PaginationLink>
+    <Blazorise.Pagination>
+        <Blazorise.PaginationItem Disabled="@IsPageNavigationDisabled(PREVIOUS)" @onclick="Previous">
+            <Blazorise.PaginationLink>
                 <span aria-hidden="true">«</span>
-            </PaginationLink>
-        </PaginationItem>
+            </Blazorise.PaginationLink>
+        </Blazorise.PaginationItem>
         @{
             for (var i = PersistentData.SearchData.paginationFirst; i <= PersistentData.SearchData.paginationLast; i++)
             {
                 var pageNumberAsString = i.ToString();
-                <PaginationItem @key="pageNumberAsString" Active="@IsActive(pageNumberAsString)">
-                    <PaginationLink Page="@pageNumberAsString" Clicked="SetActive">
+                <Blazorise.PaginationItem @key="pageNumberAsString" Active="@IsActive(pageNumberAsString)">
+                    <Blazorise.PaginationLink Page="@pageNumberAsString" Clicked="SetActive">
                         @pageNumberAsString
-                    </PaginationLink>
-                </PaginationItem>
+                    </Blazorise.PaginationLink>
+                </Blazorise.PaginationItem>
             }
         }
-        <PaginationItem Disabled="@IsPageNavigationDisabled(NEXT)" @onclick="Next">
-            <PaginationLink>
+        <Blazorise.PaginationItem Disabled="@IsPageNavigationDisabled(NEXT)" @onclick="Next">
+            <Blazorise.PaginationLink>
                 <span aria-hidden="true">»</span>
-            </PaginationLink>
-        </PaginationItem>
-    </Pagination>
+            </Blazorise.PaginationLink>
+        </Blazorise.PaginationItem>
+    </Blazorise.Pagination>
 }
 
 
@@ -83,16 +84,16 @@
     {
         <p>Showing page @PersistentData.SearchData.currentPage of @PersistentData.SearchData.totalPages pages</p>
     }
-    <Container>
+    <Blazorise.Container>
         @for (int nrItem = PersistentData.SearchData.firstItemToShow; nrItem <= PersistentData.SearchData.lastItemToShwow; nrItem++)
         {
             SearchResult result = PersistentData.SearchData.SearchResults[nrItem - 1];
             <p>
-                <Button Color="Color.Primary" Outline Size="Size.Small" Margin="Margin.Is2" Clicked="@(()=> ButtonClicked(@result.LinkText))">@result.ID <Icon Name="IconName.ArrowRight" /></Button>
+                <Blazorise.Button Color="Blazorise.Color.Primary" Outline Size="Blazorise.Size.Small" Margin="Blazorise.Margin.Is2" Clicked="@(()=> ButtonClicked(@result.LinkText))">@result.ID <Blazorise.Icon Name="Blazorise.IconName.ArrowRight" /></Blazorise.Button>
                 @((MarkupString)@result.Text)
             </p>
         }
-    </Container>
+    </Blazorise.Container>
 }
 else
 {
@@ -103,13 +104,13 @@ else
 @code {
 
     #region Data Entry 
-    TextEdit TextToSearchObject;
+    Blazorise.TextEdit TextToSearchObject;
 
-    Switch<bool> SwitchPartI;
-    Switch<bool> SwitchPartII;
-    Switch<bool> SwitchPartIII;
-    Switch<bool> SwitchPartIV;
-    Switch<bool> SwitchCurrentPaper;
+    Blazorise.Switch<bool> SwitchPartI;
+    Blazorise.Switch<bool> SwitchPartII;
+    Blazorise.Switch<bool> SwitchPartIII;
+    Blazorise.Switch<bool> SwitchPartIV;
+    Blazorise.Switch<bool> SwitchCurrentPaper;
 
     private string CurrentTranslationTitle = "";
     private string TextInSearchButton = "Order by Paragraph";

@@ -77,20 +77,20 @@
     <Tooltip Text="Enable the translations choice to be shown next time the app is started" Placement="TooltipPlacement.Top">
         <Row>
             <Column>
-                <Switch @ref="@SwitchUseTransLeft" TValue="bool" Checked="@SwitchUseTransLeftValue" CheckedChanged="@OnUseTransLeft">Left</Switch>
+                <Blazorise.Switch @ref="@SwitchUseTransLeft" TValue="bool" Checked="@SwitchUseTransLeftValue" CheckedChanged="@OnUseTransLeft">Left</Blazorise.Switch>
             </Column>
             <Column>
-                <Switch @ref="@SwitchUseTransMiddle" TValue="bool" Checked="@SwitchUseTransMiddleValue" CheckedChanged="@OnUseTransMiddle">Middle</Switch>
+                <Blazorise.Switch @ref="@SwitchUseTransMiddle" TValue="bool" Checked="@SwitchUseTransMiddleValue" CheckedChanged="@OnUseTransMiddle">Middle</Blazorise.Switch>
             </Column>
             <Column>
-                <Switch @ref="@SwitchUseTransRight" TValue="bool" Checked="@SwitchUseTransRightValue" CheckedChanged="@OnUseTransRight">Right</Switch>
+                <Blazorise.Switch @ref="@SwitchUseTransRight" TValue="bool" Checked="@SwitchUseTransRightValue" CheckedChanged="@OnUseTransRight">Right</Blazorise.Switch>
             </Column>
         </Row>
     </Tooltip>
     <br />
 
     <Tooltip Text="" Placement="TooltipPlacement.Bottom">
-        <Switch TValue="bool" Checked="@RedisplayTranslationsChoice" CheckedChanged="@OnRedisplayTranslationsChoiceChanged">Display translation options in the next run</Switch>
+        <Blazorise.Switch TValue="bool" Checked="@RedisplayTranslationsChoice" CheckedChanged="@OnRedisplayTranslationsChoiceChanged">Display translation options in the next run</Blazorise.Switch>
     </Tooltip>
 
 }
@@ -118,7 +118,7 @@
     TranslationSelect TranslationSelectLeft;
     TranslationSelect TranslationSelectMiddle;
     TranslationSelect TranslationSelectRight;
-    Select<SelectTranslation> SelectMiddleTranslation;
+    Blazorise.Select<SelectTranslation> SelectMiddleTranslation;
 
     SelectTranslation selectedLeftValue;
     SelectTranslation selectedMiddleValue;
@@ -131,9 +131,9 @@
     private SwitchControl SwitchSerifFont;
 
 
-    Switch<bool> SwitchUseTransLeft;
-    Switch<bool> SwitchUseTransMiddle;
-    Switch<bool> SwitchUseTransRight;
+    Blazorise.Switch<bool> SwitchUseTransLeft;
+    Blazorise.Switch<bool> SwitchUseTransMiddle;
+    Blazorise.Switch<bool> SwitchUseTransRight;
     bool SwitchUseTransLeftValue = false;
     bool SwitchUseTransMiddleValue = false;
     bool SwitchUseTransRightValue = false;

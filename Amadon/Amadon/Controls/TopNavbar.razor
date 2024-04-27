@@ -1,5 +1,7 @@
 ﻿@using AmadonStandardLib.Helpers;
 @using AmadonStandardLib.UbClasses;
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager NavigationManager
 
 <style>
@@ -91,7 +93,7 @@
                 <span class="oi oi oi-chevron-left" aria-hidden="true"></span>
             </NavLink>
 
-            <TextEdit Class="form-control custom-input-ident" @bind-Text="@ParagraphIdent" @onkeydown="HandleKeyDownIdent" MaxLength="15" Placeholder="Paragraph ident" />
+            <Blazorise.TextEdit Class="form-control custom-input-ident" @bind-Text="@ParagraphIdent" @onkeydown="HandleKeyDownIdent" MaxLength="15" Placeholder="Paragraph ident" />
 
             <NavLink class="nav-link" @onclick="JumpToNextReference">
                 <span class="oi oi oi-chevron-right custom-nav-link-right" aria-hidden="true"> </span>
@@ -104,7 +106,7 @@
             </NavLink>
 
 
-            <TextEdit Class="form-control me-2 highlightField custom-input-high" @bind-Text="@ExpressionToSearch" @onkeydown="HandleKeyDownHigh" MaxLength="150" Placeholder="Expression to highlight" />
+            <Blazorise.TextEdit Class="form-control me-2 highlightField custom-input-high" @bind-Text="@ExpressionToSearch" @onkeydown="HandleKeyDownHigh" MaxLength="150" Placeholder="Expression to highlight" />
 
         </div>
     </div>

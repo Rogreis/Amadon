@@ -37,7 +37,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var assembly = typeof(Main).Assembly;
+        var assembly = typeof(MauiProgram).Assembly;
         // Reource name format: Amadon.wwwroot.images.Settings01.png
 
         using var stream = assembly.GetManifestResourceStream($"Amadon.wwwroot.{RelativeUrl.Replace("/", ".")}");

@@ -1,7 +1,9 @@
-﻿@inject IJSRuntime JSRuntime
-
-@using AmadonStandardLib.InterchangeData;
+﻿@using AmadonStandardLib.InterchangeData;
+@using Blazorise
 @using Blazorise.RichTextEdit
+@using Microsoft.JSInterop
+
+@inject IJSRuntime JSRuntime
 
 <Modal @ref="modalRef" Class="modal-xl ModalSize fade">
     <ModalContent ElementId="ModalContent" Class="ModalBorder">

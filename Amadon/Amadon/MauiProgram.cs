@@ -1,13 +1,10 @@
-﻿using Amadon.Services;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.RichTextEdit;
-using Microsoft.Extensions.Logging;
 
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 
 /*

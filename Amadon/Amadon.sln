@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Amadon", "Amadon\Amadon.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AmadonStandardLib", "..\AmadonStandardLib\AmadonStandardLib.csproj", "{8B85037C-B049-4588-A4B9-56289CA8FB22}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{DE55B96A-AAA4-4250-B350-27037AF1AF6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,12 @@ Global
 		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B85037C-B049-4588-A4B9-56289CA8FB22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE55B96A-AAA4-4250-B350-27037AF1AF6F}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
