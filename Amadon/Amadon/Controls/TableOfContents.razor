@@ -31,7 +31,8 @@
 @code {
 
     #region Local Data
-    TreeView<ItemForToc> treeViewPrimary;
+    TreeView<ItemForToc>? treeViewPrimary;
+
     private string CurrentTranslationTitle = "";
     private bool InternalSelection = false;
 
@@ -42,7 +43,7 @@
 
     IEnumerable<ItemForToc> ItemsPrimary = new ItemForToc[0];
 
-    private ItemForToc selectedNode;
+    private ItemForToc? selectedNode;
     private ItemForToc SelectedNode 
     { 
         get
