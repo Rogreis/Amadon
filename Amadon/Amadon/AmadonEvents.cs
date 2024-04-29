@@ -98,7 +98,7 @@ namespace Amadon
         /// <summary>
         /// Used to force track component to update after a new entry added
         /// </summary>
-        public static event ShowTrackDelegate OnShowTrack;
+        public static event ShowTrackDelegate? OnShowTrack;
 
         /// <summary>
         /// Used to inform text object asking to show a new paragraph
