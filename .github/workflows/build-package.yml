@@ -11,20 +11,15 @@ on:
       - main
 
 jobs:
-  build:
-    strategy:
-        matrix:
-            configuration: [Release]
-    runs-on: windows-latest  # For a list of available runner types, refer to
-                             # https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+     
+  build-and-package:
+    runs-on: windows-latest
+
     env:
         Solution_Name: Amadon.sln                 # Solution name
         Wap_Project_Directory: Releases           # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
         Wap_Project_Path: Amadon/Amadon/Amadon.csproj    # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-  build-and-package:
-    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
