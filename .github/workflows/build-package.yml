@@ -37,10 +37,11 @@ jobs:
       run: dotnet build $env:Wap_Project_Path --configuration Release # Specify the path to your solution file
 
     - name: Publish package
-      run: dotnet publish $env:Wap_Project_Path --configuration Release --output ./publish # Specify the path to your solution file
+      run: dotnet publish $env:Wap_Project_Path --configuration Release --framework net8.0-windows10.0.19041.0 --output ./publish # Specify the path to your solution file
 
     - name: Archive package
       uses: actions/upload-artifact@v3
       with:
         name: app-package
         path: ./publish
+ 
