@@ -1,0 +1,77 @@
+name: Windows Store CI/CD
+
+# on:
+#  push:
+#    tags:
+#      - 'release_*'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+           java-version: '11' # Specify the version of Java you need
+           distribution: 'adopt' # Specify the distribution of Java (e.g., 'adopt', 'temurin', etc.)
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Install MAUI Android workload
+        run: dotnet workload install maui-android
+        
+      - name: List directories
+        run: dir
+
+      - name: Restore workloads and packages
+        run: dotnet workload restore -source AmadonBlazor2.sln
+
+      - name: Restore dependencies
+        run: dotnet restore AmadonBlazor2.sln
+        
+      - name: Build AmadonStandardLib
+        run: dotnet build AmadonStandardLib\AmadonStandardLib.csproj --configuration Release
+
+      - name: Build Amadon
+        run: dotnet build Amadon\Amadon.csproj --configuration Release
+
+      - name: Publish application
+        run: dotnet publish AmadonBlazor2.sln --configuration Release --framework net7.0-windows --output ./publish 
+
+      - name: List publish folder
+        run: dir ./publish
+
+     # - name: Setup Windows Packaging Tool
+     #   uses: microsoft/setup-msix-packaging-tool@v1
+
+     # - name: Create MSIX package
+     #   run: msixpackagingtool pack -p ./publish/AmadonBlazor2.sln -r AppxBundle
+
+#     - name: Deploy to Windows Store
+#       uses: microsoft/MSIX-PackageSupportFramework@1.0
+#       with:
+#         msix_path: ./YourApp.msix
+#         target_store: 'Windows Store'
+#         store_publishing_profile: ${{ secrets.WINDOWS_STORE_PUBLISHING_PROFILE }}
+#
+#     - name: Submit Store Release
+#       uses: microsoft/MSIX-PackageSupportFramework@1.0
+#       with:
+#         msix_path: ./YourApp.msix
+#         target_store: 'Windows Store'
+#         store_publishing_profile: ${{ secrets.WINDOWS_STORE_PUBLISHING_PROFILE }}
+#         submission_type: 'store'
+#
+#     - name: Deploy complete!
+#       run: echo "Deployment to Windows Store is complete."
+
