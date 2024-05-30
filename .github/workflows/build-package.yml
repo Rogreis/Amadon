@@ -1,0 +1,39 @@
+# .github/workflows/build-package.yml
+
+name: Build and Package Windows Application
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-package:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '6.0.x' # Specify the required .NET SDK version
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build solution
+      run: dotnet build --configuration Release
+
+    - name: Publish package
+      run: dotnet publish --configuration Release --output ./publish
+
+    - name: Archive package
+      uses: actions/upload-artifact@v3
+      with:
+        name: app-package
+        path: ./publish
