@@ -16,10 +16,10 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4 # Updated to use Node.js 20
 
     - name: Set up .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4 # Updated to use Node.js 20
       with:
         dotnet-version: '6.0.x' # Specify the required .NET SDK version
 
