@@ -7,29 +7,35 @@
 @using AmadonStandardLib.UbClasses;
 @using System.Diagnostics;
 @using Blazorise
+@using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 @inject IJSRuntime JSRuntime;
-
 
 <div id="rightColumn" class="black splitRight right mt-0 p-0 bg-dark text-white">
     <div class="row">
         @if (@PaperLines != null)
         {
             <Table ElementId="@tableId" Borderless Resizable ResizeMode="TableResizeMode.Columns" FullWidth Class="bg-dark text-white">
-            <TableHeader>
-                @foreach (string line in @PaperLines.Titles)
-                    {
-                        @((MarkupString)@line)
-                    }
-                </TableHeader>
-                <TableBody>
-                    @foreach (string line in @PaperLines.Lines)
-                    {
-                        <TableRow>
-                            @((MarkupString)@line)
-                        </TableRow>
-                    }
-                </TableBody>
+               <TableHeader>
+               @foreach (TitleData titleData in @PaperLines.Titles)
+               {
+                  <TableHeaderCell Class="@TitleWidth(titleData)">
+                      <Div Class="@TitleClass(titleData)">
+                        <h2>@titleData.FirstLine</h2>
+                        <p>@titleData.SecondLine</p>
+                     </Div>
+                  </TableHeaderCell>
+               }
+               </TableHeader>
+
+               <TableBody>
+                  @foreach (string line in @PaperLines.Lines)
+                  {
+                     <TableRow>
+                           @((MarkupString)@line)
+                     </TableRow>
+                  }
+               </TableBody>
             </Table>
         }
 
@@ -43,15 +49,39 @@
 
 
 @code {
-    private PaperTextFormatted PaperLines { get; set; }
+    private PaperText PaperLines { get; set; }
     private string ExpressionToHighlight { get; set; }
     private HelpModal ModalHelpControl;
     private NotesModal NotesModalControl;
     string anchor = "";
 
+    public class Item
+    {
+        public string Property1 { get; set; }
+        public string Property2 { get; set; }
+    }
+
+
+    private bool isContextMenuVisible;
+    private (double LeftPx, double TopPx) contextMenuPosition;
+    private List<Item> Items = new List<Item>
+    {
+        new Item { Property1 = "Row 1, Column 1", Property2 = "Row 1, Column 2" },
+        new Item { Property1 = "Row 2, Column 1", Property2 = "Row 2, Column 2" }
+    };
+
 
     Table MainTextTable;
     const string tableId = "tableText";
+
+    private async void ShowContextMenu(MouseEventArgs e, Item item)
+    {
+        contextMenuPosition = (e.ClientX, e.ClientY);
+        isContextMenuVisible = true;
+
+        // Hide the context menu after a click outside
+        await JSRuntime.InvokeVoidAsync("registerClickOutsideHandler", DotNetObjectReference.Create(this));
+    }
 
 
     [JSInvokable]
@@ -104,7 +134,20 @@
 
     #endregion
 
+    private string TitleWidth(TitleData titleData)
+    {
+        return $"{titleData.ColumnSize}";
+    }
 
+    private string TitleClass(TitleData titleData)
+    {
+       /*
+        mt-4: Adds a margin-top of 1.5rem (24px).
+        m-3: Adds a margin of 1rem (16px) on all sides.
+        p-3: Adds padding of 1rem (16px) on all sides.
+       */
+        return "mt-4 m-3 p-3 bg-primary text-white rounded";
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -125,7 +168,7 @@
 
     private async void GetTexts()
     {
-        PaperLines = await TextService.GetHtml();
+        PaperLines = await TextServiceContextMenu.GetHtml();
         await Task.Delay(1);
     }
 

@@ -1,15 +1,22 @@
 ﻿using AmadonStandardLib.Classes;
 using AmadonStandardLib.Helpers;
 using AmadonStandardLib.UbClasses;
+using Blazorise;
 using System.Text;
+using Paragraph = AmadonStandardLib.UbClasses.Paragraph;
 
 namespace Amadon.Services
 {
-
-    public class TextService
+    internal class TextServiceContextMenu
     {
-
-        private static string ColumnSize = "50%";
+        enum columnSizeEnum
+        {
+            Width25,
+            Width33,
+            Width50,
+            Width100
+        }
+        private static columnSizeEnum ColumnSize = columnSizeEnum.Width50;
 
         /// <summary>
         /// Get the paragraphs list from a translations
@@ -17,9 +24,9 @@ namespace Amadon.Services
         /// <param name="t"></param>
         /// <param name="entry"></param>
         /// <returns></returns>
-        private static List<Paragraph> GetParagraphs(Translation t, TOC_Entry entry) 
+        private static List<Paragraph> GetParagraphs(Translation t, TOC_Entry entry)
         {
-            List<Paragraph> list= t?.Paper(entry.Paper).Paragraphs;
+            List<Paragraph> list = t?.Paper(entry.Paper).Paragraphs;
             list.ForEach(p => p.TranslationId = t.LanguageID);
             return list;
         }
@@ -34,7 +41,7 @@ namespace Amadon.Services
         {
             if (par != null)
             {
-                string id= insertAnchor? $" id =\"{par.AName}\"" : "";
+                string id = insertAnchor ? $" id =\"{par.AName}\"" : "";
                 string divClass = "";
                 if (par.TranslationId == StaticObjects.Book.GetTocSearchTranslation().LanguageID && par.Entry * StaticObjects.Parameters.Entry)
                 {
@@ -68,8 +75,8 @@ namespace Amadon.Services
         /// <param name="leftParagraph"></param>
         /// <param name="rightParagraphs"></param>
         /// <param name="middleParagraphs"></param>
-        private static void GetParagraphsLine(StringBuilder sb, Paragraph leftParagraph, 
-                                              List<Paragraph> rightParagraphs, 
+        private static void GetParagraphsLine(StringBuilder sb, Paragraph leftParagraph,
+                                              List<Paragraph> rightParagraphs,
                                               List<Paragraph> middleParagraphs)
         {
             // Only first column has anchor
@@ -84,19 +91,28 @@ namespace Amadon.Services
         /// <param name="trans"></param>
         /// <param name="entry"></param>
         /// <returns></returns>
-        private static string FormatTitle(Translation trans, TOC_Entry entry)
+        private static TitleData FormatTitle(Translation trans, TOC_Entry entry)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("<div class=\"mt-4 p-3 bg-primary text-white rounded\"> ");
-            sb.AppendLine($"  <h2>{trans.PaperTranslation} {entry.Paper}</h2>  ");
-            sb.AppendLine($"  <p>{trans.Description}</p>  ");
-            sb.AppendLine("</div> ");
-            /*
-                pt-0 padding-top
-                ps-2 padding-left (2 = approximately equal to 10 pixels, assuming the default font-size of 16px).
-                pe-0 padding-right
-                pb-5 for padding-bottom: 20 (.25rem * 5 in Bootstrap 5 is approximately equal to              * */
-            return $"<th width=\"{ColumnSize}\"><div class=\"m-3 parClosed\">{sb}</div></th>";
+            TitleData titleData = new TitleData();
+            switch(ColumnSize)
+            {
+                case columnSizeEnum.Width25:
+                    titleData.ColumnSize = "width-25";
+                    break;
+                case columnSizeEnum.Width33:
+                    titleData.ColumnSize = "width-33";
+                    break;
+                case columnSizeEnum.Width50:
+                    titleData.ColumnSize = "width-50";
+                    break;
+                case columnSizeEnum.Width100:
+                    titleData.ColumnSize = "width-100";
+                    break;
+
+            }
+            titleData.FirstLine = trans.Description;
+            titleData.SecondLine = $"{trans.PaperTranslation} {entry.Paper}";
+            return titleData;
         }
 
         private static TextShowOption CalculateShowOption()
@@ -124,10 +140,10 @@ namespace Amadon.Services
         /// </summary>
         /// <param name="href"></param>
         /// <returns>Json string for the object PaperText</returns>
-        public static Task<PaperTextFormatted> GetHtml()
+        public static Task<PaperText> GetHtml()
         {
-            PaperTextFormatted paperTextFormatted = new PaperTextFormatted();
-            paperTextFormatted.Entry= StaticObjects.Parameters.Entry;
+            PaperText paperTextFormatted = new PaperText();
+            paperTextFormatted.Entry = StaticObjects.Parameters.Entry;
 
             // Get the paragraphs texts folowing what was required by user (StaticObjects.Parameters.TextShowOption)
             List<Paragraph>? leftParagraphs = null;
@@ -141,23 +157,23 @@ namespace Amadon.Services
             switch (CalculateShowOption())
             {
                 case TextShowOption.LeftOnly:
-                    ColumnSize = "100%";
+                    ColumnSize = columnSizeEnum.Width100;
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.LeftTranslation, paperTextFormatted.Entry));
                     break;
                 case TextShowOption.LeftRight:
-                    ColumnSize = "50%";
+                    ColumnSize = columnSizeEnum.Width50;
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.LeftTranslation, paperTextFormatted.Entry));
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.RightTranslation, paperTextFormatted.Entry));
                     rightParagraphs = GetParagraphs(StaticObjects.Book.RightTranslation, paperTextFormatted.Entry);
                     break;
                 case TextShowOption.LeftMiddle:
-                    ColumnSize = "50%";
+                    ColumnSize = columnSizeEnum.Width50;
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.LeftTranslation, paperTextFormatted.Entry));
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.MiddleTranslation, paperTextFormatted.Entry));
                     middleParagraphs = GetParagraphs(StaticObjects.Book.MiddleTranslation, paperTextFormatted.Entry);
                     break;
                 case TextShowOption.LeftMiddleRight:
-                    ColumnSize = "33%";
+                    ColumnSize = columnSizeEnum.Width33;
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.LeftTranslation, paperTextFormatted.Entry));
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.MiddleTranslation, paperTextFormatted.Entry));
                     paperTextFormatted.Titles.Add(FormatTitle(StaticObjects.Book.RightTranslation, paperTextFormatted.Entry));
@@ -167,7 +183,7 @@ namespace Amadon.Services
             }
 
             // Format line
-            foreach(Paragraph p in leftParagraphs)
+            foreach (Paragraph p in leftParagraphs)
             {
                 StringBuilder sb = new StringBuilder();
                 GetParagraphsLine(sb, p, rightParagraphs, middleParagraphs);

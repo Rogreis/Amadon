@@ -79,7 +79,8 @@ namespace Amadon
             });
 
             builder.Services
-                .AddBlazoriseRichTextEdit();
+                .AddBlazoriseRichTextEdit()
+                .AddBootstrap5Providers();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
@@ -94,7 +95,11 @@ namespace Amadon
                 .AddBootstrap5Providers()
                 .AddFontAwesomeIcons();
 
-            return builder.Build();
+            var app = builder.Build();
+
+
+            return app;
         }
+
     }
 }
