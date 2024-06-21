@@ -180,71 +180,67 @@ namespace AmadonStandardLib.UbClasses
         }
 
 
-        public Paragraph(short translationId)
-        {
-            TranslationId = translationId;
-        }
+        //public Paragraph(short translationId)
+        //{
+        //    TranslationId = translationId;
+        //}
 
-        public Paragraph(string filePath)
-        {
-            Text = MarkdownToHtml(File.ReadAllText(filePath));
-            char[] sep = { '_' };
-            string fileName = Path.GetFileNameWithoutExtension(filePath).Remove(0, 4);
-            string[] parts = fileName.Split(sep, StringSplitOptions.RemoveEmptyEntries);
-            Paper = Convert.ToInt16(parts[0]);
-            Section = Convert.ToInt16(parts[1]);
-            ParagraphNo = Convert.ToInt16(parts[2]);
-            IsEditTranslation = true;
-        }
-
-
-        public static string RelativeFilePath(Paragraph p)
-        {
-            return $"Doc{p.Paper:000}/Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
-        }
-
-        public static string Url(Paragraph p)
-        {
-            return $"https://github.com/Rogreis/PtAlternative/blob/correcoes/Doc{p.Paper:000}/Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
-        }
+        //public Paragraph(string filePath)
+        //{
+        //    Text = MarkdownToHtml(File.ReadAllText(filePath));
+        //    char[] sep = { '_' };
+        //    string fileName = Path.GetFileNameWithoutExtension(filePath).Remove(0, 4);
+        //    string[] parts = fileName.Split(sep, StringSplitOptions.RemoveEmptyEntries);
+        //    Paper = Convert.ToInt16(parts[0]);
+        //    Section = Convert.ToInt16(parts[1]);
+        //    ParagraphNo = Convert.ToInt16(parts[2]);
+        //    IsEditTranslation = true;
+        //}
 
 
-        public static string RelativeFilePathWindows(Paragraph p)
-        {
-            return $@"Doc{p.Paper:000}\Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
-        }
+        //public static string RelativeFilePath(Paragraph p)
+        //{
+        //    return $"Doc{p.Paper:000}/Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
+        //}
 
-        public static string FullPath(string repositoryPath, short paperNo, short sectionNo, short paragraphNo)
-        {
-            return Path.Combine(repositoryPath, $@"Doc{paperNo:000}\Par_{paperNo:000}_{sectionNo:000}_{paragraphNo:000}.md");
-            //return Path.Combine(repositoryPath, $@"Par_{paperNo:000}_{sectionNo:000}_{paragraphNo:000}.md");
-        }
-
-        public static string FullPath(string repositoryPath, Paragraph p)
-        {
-            return Path.Combine(repositoryPath, RelativeFilePathWindows(p));
-        }
-
-        private string FormatIdentification()
-        {
-            return $"<span class=\"text-secondary\">{Identification} </span>";
-        }
+        //public static string Url(Paragraph p)
+        //{
+        //    return $"https://github.com/Rogreis/PtAlternative/blob/correcoes/Doc{p.Paper:000}/Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
+        //}
 
 
-        private void FormatText(StringBuilder sb, bool insertAnchor, string startTag, string endTag)
-        {
-            string ident = StaticObjects.Parameters.ShowParagraphIdentification ? FormatIdentification() : "";
-            sb.Append($"{startTag}{(insertAnchor ? $"<a name =\"{AName}\"/>" : "")} {ident}{Text}{endTag}");
-        }
+        //public static string RelativeFilePathWindows(Paragraph p)
+        //{
+        //    return $@"Doc{p.Paper:000}\Par_{p.Paper:000}_{p.Section:000}_{p.ParagraphNo:000}.md";
+        //}
 
-        private string FormatTextTitle()
-        {
-            return $"<span class=\"text-warning\">{Text} </span>";
-        }
-        private void FormatTitle(StringBuilder sb, bool insertAnchor, string startTag, string endTag)
-        {
-            sb.Append($"{startTag}{(insertAnchor ? $"<a name =\"{AName}\"/>" : "")} {FormatTextTitle()}{endTag}");
-        }
+        //public static string FullPath(string repositoryPath, short paperNo, short sectionNo, short paragraphNo)
+        //{
+        //    return Path.Combine(repositoryPath, $@"Doc{paperNo:000}\Par_{paperNo:000}_{sectionNo:000}_{paragraphNo:000}.md");
+        //    //return Path.Combine(repositoryPath, $@"Par_{paperNo:000}_{sectionNo:000}_{paragraphNo:000}.md");
+        //}
+
+        //public static string FullPath(string repositoryPath, Paragraph p)
+        //{
+        //    return Path.Combine(repositoryPath, RelativeFilePathWindows(p));
+        //}
+
+
+
+        //private void FormatText(StringBuilder sb, bool insertAnchor, string startTag, string endTag)
+        //{
+        //    string ident = StaticObjects.Parameters.ShowParagraphIdentification ? FormatIdentification() : "";
+        //    sb.Append($"{startTag}{(insertAnchor ? $"<a name =\"{AName}\"/>" : "")} {ident}{Text}{endTag}");
+        //}
+
+        //private string FormatTextTitle()
+        //{
+        //    return $"<span class=\"text-warning\">{Text} </span>";
+        //}
+        //private void FormatTitle(StringBuilder sb, bool insertAnchor, string startTag, string endTag)
+        //{
+        //    sb.Append($"{startTag}{(insertAnchor ? $"<a name =\"{AName}\"/>" : "")} {FormatTextTitle()}{endTag}");
+        //}
 
 
         // Add this if using nested MemberwiseClone.
@@ -257,30 +253,21 @@ namespace AmadonStandardLib.UbClasses
         }
 
 
-        public string GetHtml(bool insertAnchor)
+        public string GetHtml()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"<div class=\"p-2 \">");
-            switch (Format)
-            {
-                case ParagraphHtmlType.BookTitle:
-                    FormatText(sb, false, "<h1>", "</h1>");
-                    break;
-                case ParagraphHtmlType.PaperTitle:
-                    FormatTitle(sb, insertAnchor, "<h2>", "</h2>");
-                    break;
-                case ParagraphHtmlType.SectionTitle:
-                    FormatTitle(sb, insertAnchor, "<h3>", "</h3>");
-                    break;
-                case ParagraphHtmlType.NormalParagraph:
-                    FormatText(sb, insertAnchor, "<p>", "</p>");
-                    break;
-                case ParagraphHtmlType.IdentedParagraph:
-                    FormatText(sb, insertAnchor, "<bloquote><p>", "</p></bloquote>");
-                    break;
-            }
-            sb.AppendLine("</div>");
-            return sb.ToString();
+            // Decode known HTML entities
+            string text = Regex.Replace(Text, "&quot;", "\"");
+            text = Regex.Replace(text, "&amp;", "&");
+            text = Regex.Replace(text, "&lt;", "<");
+            text = Regex.Replace(text, "&gt;", ">");
+            text = Regex.Replace(text, "&nbsp;", " ");
+            // Add more known HTML entities as needed
+
+            // Decode numeric HTML entities
+            text = Regex.Replace(text, @"&#(\d+);", match => char.ConvertFromUtf32(int.Parse(match.Groups[1].Value)));
+            text = Regex.Replace(text, @"&#x([0-9a-fA-F]+);", match => char.ConvertFromUtf32(Convert.ToInt32(match.Groups[1].Value, 16)));
+
+            return text;
         }
 
         public string GetTrackHtml()
@@ -290,52 +277,52 @@ namespace AmadonStandardLib.UbClasses
 
 
 
-        /// <summary>
-        /// Convert paragraph markdown to HTML
-        /// The markdown used for TUB paragraphs has just italics
-        /// </summary>
-        /// <param name="markDownText"></param>
-        /// <returns></returns>
-        private string MarkdownToHtml(string markDownText)
-        {
-            int position = 0;
-            bool openItalics = true;
+        ///// <summary>
+        ///// Convert paragraph markdown to HTML
+        ///// The markdown used for TUB paragraphs has just italics
+        ///// </summary>
+        ///// <param name="markDownText"></param>
+        ///// <returns></returns>
+        //private string MarkdownToHtml(string markDownText)
+        //{
+        //    int position = 0;
+        //    bool openItalics = true;
 
-            string newText = markDownText;
-            var regex = new Regex(Regex.Escape("*"));
-            while (position >= 0)
-            {
-                position = newText.IndexOf('*');
-                if (position >= 0)
-                {
-                    newText = regex.Replace(newText, openItalics ? "<i>" : "</i>", 1);
-                    openItalics = !openItalics;
-                }
-            }
-            return newText;
-        }
+        //    string newText = markDownText;
+        //    var regex = new Regex(Regex.Escape("*"));
+        //    while (position >= 0)
+        //    {
+        //        position = newText.IndexOf('*');
+        //        if (position >= 0)
+        //        {
+        //            newText = regex.Replace(newText, openItalics ? "<i>" : "</i>", 1);
+        //            openItalics = !openItalics;
+        //        }
+        //    }
+        //    return newText;
+        //}
 
-        public static string FolderPath(short paperNo)
-        {
-            return $"Doc{paperNo:000}";
-        }
+        //public static string FolderPath(short paperNo)
+        //{
+        //    return $"Doc{paperNo:000}";
+        //}
 
 
-        public static string FilePath(short paperNo, short section, short paragraphNo)
-        {
-            return $"{FolderPath(paperNo)}\\Par_{paperNo:000}_{section:000}_{paragraphNo:000}.md";
-        }
+        //public static string FilePath(short paperNo, short section, short paragraphNo)
+        //{
+        //    return $"{FolderPath(paperNo)}\\Par_{paperNo:000}_{section:000}_{paragraphNo:000}.md";
+        //}
 
-        public static string FilePath(string ident)
-        {
-            // 120:0-1 (0.0)
-            char[] separators = { ':', '-', ' ' };
-            string[] parts = ident.Split(separators, StringSplitOptions.RemoveEmptyEntries);
-            short paperNo = Convert.ToInt16(parts[0]);
-            short section = Convert.ToInt16(parts[1]);
-            short paragraphNo = Convert.ToInt16(parts[2]);
-            return $"Doc{paperNo:000}\\Par_{paperNo:000}_{section:000}_{paragraphNo:000}.md";
-        }
+        //public static string FilePath(string ident)
+        //{
+        //    // 120:0-1 (0.0)
+        //    char[] separators = { ':', '-', ' ' };
+        //    string[] parts = ident.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+        //    short paperNo = Convert.ToInt16(parts[0]);
+        //    short section = Convert.ToInt16(parts[1]);
+        //    short paragraphNo = Convert.ToInt16(parts[2]);
+        //    return $"Doc{paperNo:000}\\Par_{paperNo:000}_{section:000}_{paragraphNo:000}.md";
+        //}
 
         //public void SetNote(Note note)
         //{
@@ -357,18 +344,18 @@ namespace AmadonStandardLib.UbClasses
         //}
 
 
-        public bool SaveText(string repositoryPath)
-        {
-            try
-            {
-                File.WriteAllText(FullPath(repositoryPath, this), Text);
-                return true;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        //public bool SaveText(string repositoryPath)
+        //{
+        //    try
+        //    {
+        //        File.WriteAllText(FullPath(repositoryPath, this), Text);
+        //        return true;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
 
         //public bool SaveNotes(string repositoryPath)
         //{

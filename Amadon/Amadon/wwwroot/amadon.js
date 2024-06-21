@@ -35,5 +35,45 @@ window.addDoubleClickListener = function (elementId, dotNetReference) {
     }
 }
 
+// For the text context menu
+window.registerClickOutsideHandler = (dotnetHelper) => {
+   const hideContextMenu = (event) => {
+      dotnetHelper.invokeMethodAsync('HideContextMenu');
+      document.removeEventListener('click', hideContextMenu);
+   };
+
+   document.addEventListener('click', hideContextMenu);
+};
+
+function selectText(id) {
+   var element = document.getElementById(id);
+   if (element) {
+      var range = document.createRange();
+      range.selectNodeContents(element);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+   }
+}
+
+function changeClass(id, newClass) {
+   var element = document.getElementById(id);
+   if (element) {
+      element.className = newClass;
+   }
+}
+
+function getSelectedText(id) {
+   var element = document.getElementById(id);
+   if (element) {
+      var selection = window.getSelection();
+      var selectedText = selection.toString();
+      return selectedText;
+   }
+   return "";
+}
+
+
+
     
 

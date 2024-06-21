@@ -16,32 +16,71 @@
         @if (@PaperLines != null)
         {
             <Table ElementId="@tableId" Borderless Resizable ResizeMode="TableResizeMode.Columns" FullWidth Class="bg-dark text-white">
-               <TableHeader>
-               @foreach (TitleData titleData in @PaperLines.Titles)
-               {
-                  <TableHeaderCell Class="@TitleWidth(titleData)">
-                      <Div Class="@TitleClass(titleData)">
-                        <h2>@titleData.FirstLine</h2>
-                        <p>@titleData.SecondLine</p>
-                     </Div>
-                  </TableHeaderCell>
-               }
-               </TableHeader>
+                <TableHeader>
+                    @foreach (TitleData titleData in @PaperLines.Titles)
+                    {
+                        <TableHeaderCell Class="@TitleWidth(titleData)">
+                            <Div Class="@TitleClass(titleData)">
+                                <h2>@titleData.FirstLine</h2>
+                                <p>@titleData.SecondLine</p>
+                            </Div>
+                        </TableHeaderCell>
+                    }
+                </TableHeader>
 
-               <TableBody>
-                  @foreach (string line in @PaperLines.Lines)
-                  {
-                     <TableRow>
-                           @((MarkupString)@line)
-                     </TableRow>
-                  }
-               </TableBody>
+                <TableBody>
+                    @foreach (ParagraphsLineData paragraphsLineData in @PaperLines.Lines)
+                    {
+                        <TableRow>
+                            @if (paragraphsLineData.paragraphLeft != null)
+                            {
+                                string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Left);
+                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Left))">
+                                    <Div id="@id"
+                                         Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
+                                        @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Left, true))
+                                    </Div>
+                                </TableRowCell>
+                            }
+                            @if (paragraphsLineData.MiddleText != null)
+                            {
+                                string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Middle);
+                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Middle))">
+                                    <Div id="@id"
+                                         Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
+                                        @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Middle, false))
+                                    </Div>
+                                </TableRowCell>
+                            }
+                            @if (paragraphsLineData.RightText != null)
+                            {
+                                string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Right);
+                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Right))">
+                                    <Div id="@id"
+                                         Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
+                                        @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Right, false))
+                                    </Div>
+                                </TableRowCell>
+                            }
+                        </TableRow>
+                    }
+                </TableBody>
             </Table>
+
         }
 
-        <HelpModal @ref="ModalHelpControl"></HelpModal>
+    <Dropdown @ref="contextMenu" Visible="@isContextMenuVisible">
+        <DropdownMenu Style="@StyleForContextMenu()">
+            @foreach (ContextMenuItem item in ContextMenuItems)
+            {
+                    <DropdownItem @oncontextmenu="() => ContextMenuClicked(item)" @onclick="() => ContextMenuClicked(item)">@item.Caption</DropdownItem>
+            }
+        </DropdownMenu>
+    </Dropdown>
 
-        <NotesModal @ref="NotesModalControl"></NotesModal>
+    <HelpModal @ref="ModalHelpControl"></HelpModal>
+
+    <NotesModal @ref="NotesModalControl"></NotesModal>
 
     </div>
 
@@ -49,91 +88,174 @@
 
 
 @code {
+    private enum ParagraphPosition
+    {
+        Right,
+        Middle,
+        Left
+    }
+
     private PaperText PaperLines { get; set; }
     private string ExpressionToHighlight { get; set; }
     private HelpModal ModalHelpControl;
     private NotesModal NotesModalControl;
     string anchor = "";
-
-    public class Item
-    {
-        public string Property1 { get; set; }
-        public string Property2 { get; set; }
-    }
-
-
-    private bool isContextMenuVisible;
-    private (double LeftPx, double TopPx) contextMenuPosition;
-    private List<Item> Items = new List<Item>
-    {
-        new Item { Property1 = "Row 1, Column 1", Property2 = "Row 1, Column 2" },
-        new Item { Property1 = "Row 2, Column 1", Property2 = "Row 2, Column 2" }
-    };
-
-
+    private Dropdown contextMenu;
     Table MainTextTable;
     const string tableId = "tableText";
 
-    private async void ShowContextMenu(MouseEventArgs e, Item item)
-    {
-        contextMenuPosition = (e.ClientX, e.ClientY);
-        isContextMenuVisible = true;
+    #region Context Menu
+    private bool isContextMenuVisible;
+    private (double LeftPx, double TopPx) contextMenuPosition;
 
-        // Hide the context menu after a click outside
-        await JSRuntime.InvokeVoidAsync("registerClickOutsideHandler", DotNetObjectReference.Create(this));
+    private class ContextMenuItem
+    {
+        public string Caption { get; set; } = "";
+        public ContextMenuFunction Function { get; set; } = ContextMenuFunction.None;
+        public ParagraphPosition Position { get; set; } = ParagraphPosition.Left;
+        public string Id { get; set; } = "";
     }
 
+    private enum ContextMenuFunction
+    {
+        None,
+        SelectAll,
+        Copy,
+        Highlight,
+        Search,
+        SearchSubjects
+    }
+
+    private List<ContextMenuItem> ContextMenuItems = new List<ContextMenuItem>
+    {
+        new ContextMenuItem { Caption = "Highlight", Function = ContextMenuFunction.Highlight },
+        new ContextMenuItem { Caption = "Search", Function = ContextMenuFunction.Search },
+        new ContextMenuItem { Caption = "Search Subjects", Function = ContextMenuFunction.SearchSubjects },
+        new ContextMenuItem { Caption = "Copy", Function = ContextMenuFunction.Copy },
+        new ContextMenuItem { Caption = "Select All", Function = ContextMenuFunction.SelectAll },
+    };
 
     [JSInvokable]
-    public static void HandleF1KeyPress()
+    public void HideContextMenu()
     {
-        // Handle the F1 key press here
-        AmadonEvents.HelpContext();
+        isContextMenuVisible = false;
+        StateHasChanged();
     }
 
+    private string StyleForContextMenu()
+    {
+        return $"position: fixed; left: {contextMenuPosition.LeftPx}px; top: {contextMenuPosition.TopPx}px;";
+    }
+
+    private async void ShowContextMenu(Blazorise.BLMouseEventArgs e, string id, ParagraphPosition position)
+    {
+        switch(e.Button)
+        {
+            case MouseButton.Right:
+                foreach (ContextMenuItem item in ContextMenuItems) { item.Position = position; item.Id = id; }
+                contextMenuPosition = (e.Client.X, e.Client.Y);
+                isContextMenuVisible = true;
+
+                // Hide the context menu after a click outside
+                await JSRuntime.InvokeVoidAsync("registerClickOutsideHandler", DotNetObjectReference.Create(this));
+                break;
+            case MouseButton.Left:
+                break;
+            case MouseButton.Middle:
+                await SelectDivText(id);
+                break;
+        }
+    }
+
+    private async void ContextMenuClicked(ContextMenuItem item)
+    {
+        // Handle Option 1 click
+        //Debug.WriteLine($"{item.Caption} {item.Position} {item.Id}");
+        string text = "";
+        switch(item.Function)
+        {
+            case ContextMenuFunction.SelectAll:
+                await SelectDivText(item.Id);
+                break;
+            case ContextMenuFunction.Highlight:
+                await SelectDivText(item.Id);
+                break;
+            case ContextMenuFunction.Search:
+                text = await GetSelectedText(item.Id);
+                break;
+            case ContextMenuFunction.SearchSubjects:
+                text = await GetSelectedText(item.Id);
+                break;
+            case ContextMenuFunction.Copy:
+                text = await GetSelectedText(item.Id);
+                if (!string.IsNullOrEmpty(text)) await Clipboard.SetTextAsync(text);
+                break;
+        }
+        isContextMenuVisible = false;
+    }
+
+
+    public async Task SelectDivText(string id)
+    {
+        await JSRuntime.InvokeVoidAsync("selectText", id);
+    }
+
+    public async Task ChangeDivClass(string id, string newClass)
+    {
+        await JSRuntime.InvokeVoidAsync("changeClass", id, newClass);
+    }
+
+    public async Task<string> GetSelectedText(string id)
+    {
+        return await JSRuntime.InvokeAsync<string>("getSelectedText", id);
+    }
+
+
+    #endregion
 
     #region Current page search and hightlight functions
 
 
     private void UnhighlightAll()
     {
-        for (int i = 0; i < PaperLines.Titles.Count; i++)
-        {
-            PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
-        }
-        for (int i = 0; i < PaperLines.Lines.Count; i++)
-        {
-            PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
-        }
-        PersistentData.GenericData.HighlightedText = string.Empty;
-        StateHasChanged();
+        // for (int i = 0; i < PaperLines.Titles.Count; i++)
+        // {
+        //     PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        // }
+        // for (int i = 0; i < PaperLines.Lines.Count; i++)
+        // {
+        //     PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        // }
+        // PersistentData.GenericData.HighlightedText = string.Empty;
+        // StateHasChanged();
     }
 
     private void OnHighlightExpression(string expression)
     {
-        if (!string.IsNullOrEmpty(expression))
-        {
-            PersistentData.GenericData.HighlightedText = expression;
-            for (int i = 0; i < PaperLines.Titles.Count; i++)
-            {
-                PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
-                PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
-            }
-            for (int i = 0; i < PaperLines.Lines.Count; i++)
-            {
-                PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
-                PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
-            }
-            StateHasChanged();
-        }
-        else
-        {
-            UnhighlightAll();
-        }
+        // if (!string.IsNullOrEmpty(expression))
+        // {
+        //     PersistentData.GenericData.HighlightedText = expression;
+        //     for (int i = 0; i < PaperLines.Titles.Count; i++)
+        //     {
+        //         PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        //         PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
+        //     }
+        //     for (int i = 0; i < PaperLines.Lines.Count; i++)
+        //     {
+        //         PaperLines.Lines[i] = HighlightTexts.UnhighlightString(PaperLines.Lines[i]);
+        //         PaperLines.Lines[i] = HighlightTexts.HighlightString(PaperLines.Lines[i], expression);
+        //     }
+        //     StateHasChanged();
+        // }
+        // else
+        // {
+        //     UnhighlightAll();
+        // }
     }
 
     #endregion
 
+    #region Page title
     private string TitleWidth(TitleData titleData)
     {
         return $"{titleData.ColumnSize}";
@@ -141,13 +263,90 @@
 
     private string TitleClass(TitleData titleData)
     {
-       /*
+        /*
         mt-4: Adds a margin-top of 1.5rem (24px).
         m-3: Adds a margin of 1rem (16px) on all sides.
         p-3: Adds padding of 1rem (16px) on all sides.
-       */
+        */
         return "mt-4 m-3 p-3 bg-primary text-white rounded";
     }
+    #endregion
+
+    #region Paragraph text
+    private string GenerateParagraphId(AmadonStandardLib.UbClasses.Paragraph par, ParagraphPosition position)
+    {
+        switch (position)
+        {
+            case ParagraphPosition.Left:
+                return par.ID + "_L";
+            case ParagraphPosition.Middle:
+                return par.ID + "_M";
+        }
+        return par.ID + "_R";
+    }
+
+    private string GenerateParagraphClass(AmadonStandardLib.UbClasses.Paragraph par)
+    {
+        return "p-2";
+    }
+
+    private string FormatIdentification(string identification)
+    {
+        return $"<span class=\"text-secondary\">{identification} </span>";
+    }
+
+
+    private string GenerateParagraphText(ParagraphsLineData lineData, ParagraphPosition position, bool insertAnchor)
+    {
+        string ident = StaticObjects.Parameters.ShowParagraphIdentification 
+                             && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ? 
+                             FormatIdentification(lineData.paragraphLeft.Identification) : "";
+        string anchor = (insertAnchor? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
+        string startTag = "", endTag = "", text= "";
+
+        switch (position)
+        {
+            case ParagraphPosition.Left:
+                text = lineData.paragraphLeft.GetHtml();
+                break;
+            case ParagraphPosition.Middle:
+                text = lineData.MiddleText;
+                break;
+            case ParagraphPosition.Right:
+                text = lineData.RightText;
+                break;
+        }
+
+        switch (lineData.paragraphLeft.Format)
+        {
+            case ParagraphHtmlType.BookTitle:
+                startTag = "<h1>"; endTag = "</h1>";
+                break;
+            case ParagraphHtmlType.PaperTitle:
+                startTag = "<h2>"; endTag = "</h2>";
+                break;
+            case ParagraphHtmlType.SectionTitle:
+                startTag = "<h3>"; endTag = "</h3>";
+                break;
+            case ParagraphHtmlType.NormalParagraph:
+                startTag = "<p>"; endTag = "</p>";
+                break;
+            case ParagraphHtmlType.IdentedParagraph:
+                startTag = "<bloquote><p>"; endTag = "</p></bloquote>";
+                break;
+        }
+        return $"{startTag}{anchor} {ident} {text}{endTag}";
+    }
+    #endregion
+
+    #region Page Control
+    [JSInvokable]
+    public static void HandleF1KeyPress()
+    {
+        // Handle the F1 key press here
+        AmadonEvents.HelpContext();
+    }
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -229,12 +428,13 @@
     {
         if (firstRender)
         {
-             await Task.Run(() =>
-            {
-                GetTexts();
-            });
+            await Task.Run(() =>
+           {
+               GetTexts();
+           });
             AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
             StateHasChanged();
         }
-     }
+    }
+    #endregion
 }
