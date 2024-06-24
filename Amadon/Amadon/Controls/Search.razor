@@ -328,11 +328,22 @@ else
         DoSearch();
     }
 
+    void OnSearchNewText(string text)
+    {
+        PersistentData.SearchData.QueryString = text;
+        DoSearch();
+    }
+
     private void HandleOnQueryText()
     {
         DoSearch();
     }
 
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        AmadonEvents.OnSearchNewText += OnSearchNewText;
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {

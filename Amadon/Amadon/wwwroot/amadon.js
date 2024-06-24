@@ -64,13 +64,18 @@ function changeClass(id, newClass) {
 }
 
 function getSelectedText(id) {
-   var element = document.getElementById(id);
-   if (element) {
-      var selection = window.getSelection();
-      var selectedText = selection.toString();
-      return selectedText;
-   }
-   return "";
+
+   var selection = window.getSelection();
+   var selectedText = selection.toString();
+   return selectedText;
+
+//   var element = document.getElementById(id);
+//   if (element) {
+//      var selection = window.getSelection();
+//      var selectedText = selection.toString();
+//      return selectedText;
+//   }
+//   return "";
 }
 
 

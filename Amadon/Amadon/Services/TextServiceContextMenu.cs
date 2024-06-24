@@ -203,7 +203,7 @@ namespace Amadon.Services
             {
                 ParagraphsLineData paragraphsLineData = new ParagraphsLineData();
                 paragraphsLineData.Identification = p.Identification;
-                paragraphsLineData.paragraphLeft = p;
+                paragraphsLineData.paragraphLeft = p.DeepCopy();
                 paragraphsLineData.ShowOption = CalculateShowOption();
 
                 // Calculate the text to show option

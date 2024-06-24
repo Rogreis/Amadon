@@ -20,6 +20,8 @@ namespace Amadon
     internal delegate void NewParagraphIdentDelegate(TOC_Entry entry);
     internal delegate void OpenEditNoteTextDelegate(UserNote note, bool isToDelete);
     internal delegate void EditNoteClosedDelegate(UserNote note, bool cancel);
+    internal delegate void SearchNewTextDelegate(string text);
+    internal delegate void SubjectSearchNewTextDelegate(string text);
 
 
     internal class AmandonComponentNames
@@ -49,6 +51,7 @@ namespace Amadon
 
     internal static class AmadonEvents
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
         /// <summary>
         /// Informs the system that a top navigation command has been issued.
@@ -132,6 +135,18 @@ namespace Amadon
 
 
         public static event EditNoteClosedDelegate OnEditNoteClosed;
+
+        /// <summary>
+        /// Fired when a new text is selected in the book text to start a search
+        /// </summary>
+        public static event SearchNewTextDelegate OnSearchNewText;
+
+        /// <summary>
+        /// Fired when a new text is selected in the book text to start a search in the subjecy index
+        /// </summary>
+        public static event SubjectSearchNewTextDelegate OnSubjectSearchNewText;
+
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 
         // ============================================================================================================= 
@@ -232,6 +247,15 @@ namespace Amadon
         public static void EditNoteClosed(UserNote note, bool cancel)
         {
             OnEditNoteClosed?.Invoke(note, cancel);
+        }
+
+        public static void SearchNewText(string text)
+        {
+            OnSearchNewText?.Invoke(text);
+        }
+        public static void SubjectSearchNewText(string text)
+        {
+            OnSubjectSearchNewText?.Invoke(text);
         }
 
     }

@@ -193,9 +193,22 @@
         StateHasChanged();
     }
 
+    async void OnSearchNewText(string text)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            PersistentData.GenericData.IndexItemsFound.Clear();
+            PersistentData.GenericData.TextSearchForIndexTitles = text;
+            await SeachIndexForSubject(text, true);
+            StateHasChanged();
+        }
+    }
+
+
     protected override void OnInitialized()
     {
         base.OnInitialized();
+        AmadonEvents.OnSubjectSearchNewText += OnSearchNewText;
     }
 
     protected override void OnAfterRender(bool firstRender)
