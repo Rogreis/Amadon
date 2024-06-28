@@ -9,7 +9,7 @@
     }
     else if (ControlName == AmandonComponentNames.ControlIndex)
     {
-        <TubIndex></TubIndex>
+        <TubIndex @ref="subjectSearchControl"></TubIndex>
     }
     else if (ControlName == AmandonComponentNames.ControlStudies)
     {
@@ -21,7 +21,7 @@
     }
     else if (ControlName == AmandonComponentNames.ControlSearch)
     {
-        <Search></Search>
+        <Search @ref="searchControl"></Search>
     }
      else if (ControlName == AmandonComponentNames.ControlTrack)
     {
@@ -41,12 +41,18 @@
 @code {
 
     private string ControlName { get; set; } = "";
+    private Search searchControl;
+    private TubIndex subjectSearchControl;
 
 
     protected override async Task OnInitializedAsync()
     {
         AmadonEvents.OnTopNavCommand += AmadonEvents_OnTopNavCommand;
         AmadonEvents.OnHelpContext += AmadonEvents_OnHelpContext;
+        AmadonEvents.OnSearchNewText += OnSearchNewText;
+        AmadonEvents.OnSubjectSearchNewText += OnSubjectSearchNewText;
+
+
         await base.OnInitializedAsync();
         SetControl(StaticObjects.Parameters.LastLeftControl);
         return;
@@ -84,6 +90,24 @@
                 break;
         }
     }
+
+    void OnSearchNewText(string text)
+    {
+        SetControl(AmandonComponentNames.ControlSearch);
+        searchControl.DoSearch(text);
+        StateHasChanged();
+    }
+
+    void OnSubjectSearchNewText(string text)
+    {
+        if (!string.IsNullOrEmpty(text))
+        {
+            SetControl(AmandonComponentNames.ControlIndex);
+            subjectSearchControl.SetNewTextToSearchIndex(text);
+            StateHasChanged();
+        }
+    }
+
 
     public void SetControl(string controlName)
     {
