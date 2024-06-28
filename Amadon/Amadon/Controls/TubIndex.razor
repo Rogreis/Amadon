@@ -22,13 +22,20 @@
 
 @if (PersistentData.GenericData.dropdownSubjectTitlesVisible)
 {
-    <label>Subject index entries found</label>
-    <ListGroup @ref="@SubjectsGroupList" Class="scrollable-list-group" Mode="ListGroupMode.Selectable" Flush Scrollable SelectedItem="@SelectedItem">
-        @foreach (TubIndexSubjects item in PersistentData.GenericData.IndexItemsFound)
-        {
-            <ListGroupItem Color="Color.Dark" Clicked="() => OnItemSelected(item.Subject)">@item.Subject</ListGroupItem>
-        }
-    </ListGroup>
+    @if (PersistentData.GenericData.IndexItemsFound.Count > 0)
+    {
+        <label>Subject index entry(ies) found:</label>
+        <ListGroup @ref="@SubjectsGroupList" Class="scrollable-list-group" Mode="ListGroupMode.Selectable" Flush Scrollable SelectedItem="@SelectedItem">
+            @foreach (TubIndexSubjects item in PersistentData.GenericData.IndexItemsFound)
+            {
+                <ListGroupItem Color="Color.Dark" Clicked="() => OnItemSelected(item.Subject)">@item.Subject</ListGroupItem>
+            }
+        </ListGroup>
+    }
+    else
+    {
+        <label>No subject index entry found.</label>
+    }
     <br />
 }
 
@@ -36,29 +43,32 @@
 {
     <div class="row">
 
-        <h3 style="color:gold">@PersistentData.GenericData.TubIndex.Title</h3>
-
-        @foreach (IndexDetails detail in @PersistentData.GenericData.TubIndex.Details)
+        @if (PersistentData.GenericData.TubIndex.Details.Count > 0)
         {
-            <blockquote>
-                @if (detail.DetailType == 2)
-                {
-                    @((MarkupString)("See Also" + @space))
-                    <Blazorise.Link Clicked="@(()=> NewSubjectIndex(@detail.Links[0]))">@detail.Links[0]</Blazorise.Link>
-                }
-                else
-                {
-                    @detail.Text
-                }
-                @if (detail.DetailType != 2)
-                {
-                    @foreach (string link in detail.Links)
+            <h3 style="color:gold">@PersistentData.GenericData.TubIndex.Title</h3>
+
+            @foreach (IndexDetails detail in @PersistentData.GenericData.TubIndex.Details)
+            {
+                <blockquote>
+                    @if (detail.DetailType == 2)
                     {
-                        @((MarkupString)@space)
-                        <Blazorise.Link Clicked="@(()=> ButtonClicked(@link))">@link</Blazorise.Link>
+                        @((MarkupString)("See Also" + @space))
+                        <Blazorise.Link Clicked="@(()=> NewSubjectIndex(@detail.Links[0]))">@detail.Links[0]</Blazorise.Link>
                     }
-                }
-            </blockquote>
+                    else
+                    {
+                        @detail.Text
+                    }
+                    @if (detail.DetailType != 2)
+                    {
+                        @foreach (string link in detail.Links)
+                        {
+                            @((MarkupString)@space)
+                            <Blazorise.Link Clicked="@(()=> ButtonClicked(@link))">@link</Blazorise.Link>
+                        }
+                    }
+                </blockquote>
+            }
         }
     </div>
 }
@@ -147,7 +157,7 @@
     private async void OnItemSelected(string selectedItem)
     {
         PersistentData.GenericData.IndexItemsFound.ForEach(item => item.IsActive = false);
-        TubIndexSubjects item = PersistentData.GenericData.IndexItemsFound.Find(i => i.Subject == selectedItem);
+        TubIndexSubjects? item = PersistentData.GenericData.IndexItemsFound.Find(i => i.Subject == selectedItem);
         if (item != null)
         {
             item.IsActive = true;
@@ -168,6 +178,7 @@
         if (!string.IsNullOrEmpty(value) && value.Length >= 3)
         {
             PersistentData.GenericData.IndexItemsFound.Clear();
+            PersistentData.GenericData.TubIndex.Details.Clear();
             await SeachIndexForSubject(value, true);
             StateHasChanged();
         }
@@ -193,24 +204,6 @@
         StateHasChanged();
     }
 
-    async void OnSearchNewText(string text)
-    {
-        if (!string.IsNullOrEmpty(text))
-        {
-            PersistentData.GenericData.IndexItemsFound.Clear();
-            PersistentData.GenericData.TextSearchForIndexTitles = text;
-            await SeachIndexForSubject(text, true);
-            StateHasChanged();
-        }
-    }
-
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        AmadonEvents.OnSubjectSearchNewText += OnSearchNewText;
-    }
-
     protected override void OnAfterRender(bool firstRender)
     {
         base.OnAfterRender(firstRender);
@@ -218,6 +211,17 @@
         {
             StateHasChanged();
         }
+    }
+
+    public async void SetNewTextToSearchIndex(string text)
+    {
+        PersistentData.GenericData.IndexItemsFound.Clear();
+        PersistentData.GenericData.TubIndex.Details.Clear();
+        PersistentData.GenericData.TextSearchForIndexTitles = text;
+        //TextToSearchObject.Text = text;
+        StateHasChanged();
+        await OnTextToSearchChanged(text);
+        //Task.Run(() => OnTextToSearchChanged(text);
     }
 
 }

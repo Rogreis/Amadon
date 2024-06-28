@@ -312,8 +312,13 @@ else
         StateHasChanged();
     }
 
-    void DoSearch()
+    public void DoSearch(string queryString = "")
     {
+        if (!string.IsNullOrEmpty(queryString))
+        {
+            PersistentData.SearchData.QueryString = queryString;
+        }
+
         if (!string.IsNullOrEmpty(PersistentData.SearchData.QueryString))
         {
             showSearchResults = true;
@@ -328,22 +333,6 @@ else
         DoSearch();
     }
 
-    void OnSearchNewText(string text)
-    {
-        PersistentData.SearchData.QueryString = text;
-        DoSearch();
-    }
-
-    private void HandleOnQueryText()
-    {
-        DoSearch();
-    }
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-        AmadonEvents.OnSearchNewText += OnSearchNewText;
-    }
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -353,7 +342,6 @@ else
             PersistentData.SearchData.hasDataToShow = PersistentData.SearchData.SearchResults.Count > 0;
             CurrentTranslationTitle = StaticObjects.Book.GetTocSearchTranslation().Description;
             StateHasChanged();
-            //dataEntry.OnQueryText += HandleOnQueryText;
         }
     }
 

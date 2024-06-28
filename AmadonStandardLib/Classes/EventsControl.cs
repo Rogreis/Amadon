@@ -1,9 +1,7 @@
 ﻿using AmadonStandardLib.Helpers;
 using AmadonStandardLib.UbClasses;
-using Lucene.Net.Documents;
 using System;
 using System.Collections.Generic;
-using static AmadonStandardLib.Classes.LibraryEventsControl;
 
 namespace AmadonStandardLib.Classes
 {
@@ -35,18 +33,6 @@ namespace AmadonStandardLib.Classes
     /// <param name="Message"></param>
     public delegate void dlSendMessage(string Message);
 
-
-
-
-
-
-
-
-
-
-
-
-
     /// <summary>
     /// Used to fire a click on a new Table Of Contents item
     /// </summary>
@@ -65,12 +51,6 @@ namespace AmadonStandardLib.Classes
     /// <param name="entry"></param>
     /// <param name="Words"></param>
     public delegate void dlSearchClicked(TOC_Entry entry, List<string> Words);
-
-    ///// <summary>
-    ///// Used to fire a click on some seach result entry
-    ///// </summary>
-    ///// <param name="loc"></param>
-    //internal delegate void dlDirectSearch(ParagraphSearchData data);
 
     /// <summary>
     /// Used to fire a click on index
@@ -119,17 +99,6 @@ namespace AmadonStandardLib.Classes
 
     public delegate void dlBilingualChanged(bool ShowBilingual);
 
-
-    //public delegate void dlFontChanged(ControlsAppearance appearance);
-
-    //public delegate void dlAppearanceChanged(ControlsAppearance appearance);
-
-    ///// <summary>
-    ///// Used by SearchDataEntry to communicate a search for its parent control
-    ///// </summary>
-    ///// <param name="data"></param>
-    //public delegate void dlShowSearchResults(SearchData data);
-
     /// <summary>
     /// Fired before to store an annotation
     /// </summary>
@@ -162,11 +131,7 @@ namespace AmadonStandardLib.Classes
 
         public static event dlSendMessage? SendMessage = null;
 
-
-
         public static event dlSearchClicked? SearchClicked = null;
-
-        //internal static event dlDirectSearch DirectSearch = null;
 
         public static event dlIndexClicked? IndexClicked = null;
 
@@ -176,7 +141,6 @@ namespace AmadonStandardLib.Classes
 
         public static event dlTrackSelected? TrackSelected = null;
 
-
         public static event dlRefreshText? RefreshText = null;
 
         public static event dlUpdateAvailable? UpdateAvailable = null;
@@ -184,10 +148,6 @@ namespace AmadonStandardLib.Classes
         public static event dlTranslationsChanged? TranslationsChanged = null;
 
         public static event dlBilingualChanged? BilingualChanged = null;
-
-        //public static event dlFontChanged FontChanged = null;
-
-        //public static event dlAppearanceChanged AppearanceChanged = null;
 
         public static event dlGridSplitter? GridSplitterChanged = null;
 
@@ -227,19 +187,13 @@ namespace AmadonStandardLib.Classes
             SendMessage?.Invoke(message);
         }
 
-        //public static void FireShowExceptionMessage(string message, Exception ex, bool isFatal = false)
-        //{
-        //    ShowExceptionMessage?.Invoke(message, ex, isFatal);
-        //}
-
-
         public static void FireGridSplitter(double newWidth) => GridSplitterChanged?.Invoke(newWidth);
 
         public static void FireMainWindowSizeChanged(double width, double height) => MainWindowSizeChanged?.Invoke(width, height);
 
         public static void FireSendMessage(string message) => SendMessage?.Invoke(message);
 
-        public static void FireSendUserAndLogMessage(string message) 
+        public static void FireSendUserAndLogMessage(string message)
         {
             FireSendMessage(message);
             StaticObjects.Logger.Info(message);
@@ -259,14 +213,9 @@ namespace AmadonStandardLib.Classes
 
         public static void FireBilingualChanged(bool ShowBilingual) => BilingualChanged?.Invoke(ShowBilingual);
 
-        //public static void FireFontChanged() => FontChanged?.Invoke(((ParametersMAUI)StaticObjects.Parameters).Appearance);
-
-        //public static void FireAppearanceChanged() => AppearanceChanged?.Invoke(((ParametersMAUI)StaticObjects.Parameters).Appearance);
-
         public static void FireNewPaperShown() => NewPaperShown?.Invoke();
 
         public static void FireAnnotationsChanges(TOC_Entry entry) => AnnotationsChanges?.Invoke(entry);
-
 
     }
 }

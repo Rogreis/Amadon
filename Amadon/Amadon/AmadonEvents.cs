@@ -52,6 +52,7 @@ namespace Amadon
     internal static class AmadonEvents
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
 
         /// <summary>
         /// Informs the system that a top navigation command has been issued.
@@ -145,8 +146,6 @@ namespace Amadon
         /// Fired when a new text is selected in the book text to start a search in the subjecy index
         /// </summary>
         public static event SubjectSearchNewTextDelegate OnSubjectSearchNewText;
-
-#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
 
         // ============================================================================================================= 
@@ -257,6 +256,9 @@ namespace Amadon
         {
             OnSubjectSearchNewText?.Invoke(text);
         }
+
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     }
 }
