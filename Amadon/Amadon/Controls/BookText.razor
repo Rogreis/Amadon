@@ -35,7 +35,7 @@
                             @if (paragraphsLineData.paragraphLeft != null)
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Left);
-                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Left))" @oncontextmenu="(e)=> OnContextMenu(e, id)">
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
                                         @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Left, true))
@@ -45,7 +45,7 @@
                             @if (paragraphsLineData.MiddleText != null)
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Middle);
-                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Middle))" @oncontextmenu="(e)=> OnContextMenu(e, id)">
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
                                         @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Middle, false))
@@ -55,7 +55,7 @@
                             @if (paragraphsLineData.RightText != null)
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Right);
-                                <TableRowCell Clicked="@( (e) => ShowContextMenu(e, id, ParagraphPosition.Right))" @oncontextmenu="(e)=> OnContextMenu(e, id)">
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
                                         @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Right, false))
@@ -69,18 +69,18 @@
 
         }
 
-    <Dropdown @ref="contextMenu" Visible="@isContextMenuVisible">
-        <DropdownMenu Style="@StyleForContextMenu()">
-            @foreach (ContextMenuItem item in ContextMenuItems)
-            {
+        <Dropdown @ref="contextMenu" Visible="@isContextMenuVisible">
+            <DropdownMenu Style="@StyleForContextMenu()">
+                @foreach (ContextMenuItem item in ContextMenuItems)
+                {
                     <DropdownItem @onkeyup="HandleKeyUp" @onclick="() => ContextMenuClicked(item)">@item.Caption</DropdownItem>
-            }
-        </DropdownMenu>
-    </Dropdown>
+                }
+            </DropdownMenu>
+        </Dropdown>
 
-    <HelpModal @ref="ModalHelpControl"></HelpModal>
+        <HelpModal @ref="ModalHelpControl"></HelpModal>
 
-    <NotesModal @ref="NotesModalControl"></NotesModal>
+        <NotesModal @ref="NotesModalControl"></NotesModal>
 
     </div>
 
@@ -109,14 +109,6 @@
     private bool isContextMenuVisible;
     private (double LeftPx, double TopPx) contextMenuPosition;
 
-    // private Dictionary<string, object> GetDropdownItemAttributes(ContextMenuItem item)
-    // {
-    //     return new Dictionary<string, object>
-    //     {
-    //         { "item", item }
-    //     };
-    // }
-
 
     private class ContextMenuItem
     {
@@ -129,6 +121,7 @@
     private enum ContextMenuFunction
     {
         None,
+        AddToTrack,
         SelectAll,
         Copy,
         Highlight,
@@ -142,7 +135,8 @@
         new ContextMenuItem { Caption = "Search", Function = ContextMenuFunction.Search },
         new ContextMenuItem { Caption = "Search Subjects", Function = ContextMenuFunction.SearchSubjects },
         new ContextMenuItem { Caption = "Copy", Function = ContextMenuFunction.Copy },
-        new ContextMenuItem { Caption = "Select All", Function = ContextMenuFunction.SelectAll },
+        new ContextMenuItem { Caption = "Add to Track", Function = ContextMenuFunction.AddToTrack },
+        new ContextMenuItem { Caption = "Select Paragraph", Function = ContextMenuFunction.SelectAll },
     };
 
     [JSInvokable]
@@ -157,22 +151,19 @@
         return $"position: fixed; left: {contextMenuPosition.LeftPx}px; top: {contextMenuPosition.TopPx}px;";
     }
 
-    private async void ShowContextMenu(Blazorise.BLMouseEventArgs e, string id, ParagraphPosition position)
-    {
-        if (e.Button == MouseButton.Left && e.CtrlKey)
-            await SelectDivText(id);
-    }
-
-
     /// <summary>
     /// Open the context menu for the selected paragraph
     /// </summary>
     /// <param name="e"></param>
     /// <param name="id"></param>
-    private async void OnContextMenu(MouseEventArgs e, string id)
+    private async void OnContextMenu(ParagraphsLineData lineData, MouseEventArgs e, string id)
     {
         contextMenuPosition = (e.ClientX, e.ClientY);
         isContextMenuVisible = true;
+        foreach (ContextMenuItem menu in ContextMenuItems)
+        {
+            menu.Id = id;  // the context menu always has the latest right click table cell id
+        }
 
         // Hide the context menu after a click outside
         await JSRuntime.InvokeVoidAsync("registerClickOutsideHandler", DotNetObjectReference.Create(this));
@@ -204,10 +195,14 @@
     private async void ContextMenuClicked(ContextMenuItem item)
     {
         string text = "";
-        switch(item.Function)
+        switch (item.Function)
         {
             case ContextMenuFunction.SelectAll:
                 await SelectDivText(item.Id);
+                break;
+
+            case ContextMenuFunction.AddToTrack:
+                AddTotrack(item.Id);
                 break;
 
             case ContextMenuFunction.Copy:
@@ -240,6 +235,17 @@
     public async Task SelectDivText(string id)
     {
         await JSRuntime.InvokeVoidAsync("selectText", id);
+    }
+
+    public async void AddTotrack(string id)
+    {
+        TOC_Entry entry = TOC_Entry.FromHref(id);
+        AmadonEvents.NewTocEntry(entry);
+        StaticObjects.Parameters.Entry = entry;
+        await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
+        string cssClass = "p-2 highlightedPar";
+        await ChangeDivClass(id, cssClass);
+        StateHasChanged();
     }
 
     public async Task ChangeDivClass(string id, string newClass)
@@ -325,7 +331,7 @@
         string cssClass = "p-2";
         if (par.TranslationId == StaticObjects.Book.GetTocSearchTranslation().LanguageID && par.Entry * StaticObjects.Parameters.Entry)
         {
-            cssClass+= " highlightedPar";
+            cssClass += " highlightedPar";
         }
         return cssClass;
     }
@@ -338,11 +344,11 @@
 
     private string GenerateParagraphText(ParagraphsLineData lineData, ParagraphPosition position, bool insertAnchor)
     {
-        string ident = StaticObjects.Parameters.ShowParagraphIdentification 
-                             && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ? 
+        string ident = StaticObjects.Parameters.ShowParagraphIdentification
+                             && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ?
                              FormatIdentification(lineData.paragraphLeft.Identification) : "";
-        string anchor = (insertAnchor? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
-        string startTag = "", endTag = "", text= "";
+        string anchor = (insertAnchor ? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
+        string startTag = "", endTag = "", text = "";
 
         switch (position)
         {

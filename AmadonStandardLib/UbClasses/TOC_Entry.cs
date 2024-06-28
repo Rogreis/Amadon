@@ -26,7 +26,7 @@ namespace AmadonStandardLib.UbClasses
             TOC_Entry entry = new TOC_Entry();
             try
             {
-                char[] sep = { ';', ':', '.', '-', ' ' };
+                char[] sep = { ';', ':', '.', '-', '_', ' ' };
                 string[] parts = href.Split(sep, StringSplitOptions.RemoveEmptyEntries);
                 switch (parts.Length)
                 {

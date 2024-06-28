@@ -1,4 +1,5 @@
 ﻿using AmadonStandardLib.UbClasses;
+using Lucene.Net.Documents;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +20,7 @@ namespace AmadonStandardLib.Classes
         public Paragraph paragraphLeft = null;
         public string? MiddleText = null;
         public string? RightText = null;
+        public string LatestHtmlId = "";
     }
 
     public class PaperText

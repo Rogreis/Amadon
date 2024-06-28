@@ -24,7 +24,7 @@ namespace Amadon.Services
         /// This function is called just to start this service to receive events
         /// </summary>
         public static void Dummy()
-        { 
+        {
         }
 
         /// <summary>
@@ -34,14 +34,20 @@ namespace Amadon.Services
         /// <returns></returns>
         public static Task AddEntry(TOC_Entry entry)
         {
-            if (PersistentData.GenericData.TrackEntries.Count == StaticObjects.Parameters.MaxExpressionsStored)
-            {
-                PersistentData.GenericData.TrackEntries.RemoveAt(PersistentData.GenericData.TrackEntries.Count - 1);
-            }
-
+            // Do nothing when the entry is at the top
             if (PersistentData.GenericData.TrackEntries.Count > 0 && PersistentData.GenericData.TrackEntries[0] * entry)
             {
                 return Task.CompletedTask;
+            }
+
+            // Remove an already existing entry when not in the top
+            if (PersistentData.GenericData.TrackEntries.Contains(entry))
+                PersistentData.GenericData.TrackEntries.Remove(entry);
+
+            // Keep the list below the maximun allowed
+            if (PersistentData.GenericData.TrackEntries.Count == StaticObjects.Parameters.MaxExpressionsStored)
+            {
+                PersistentData.GenericData.TrackEntries.RemoveAt(PersistentData.GenericData.TrackEntries.Count - 1);
             }
 
             // Text is not saved and will be always filled with the same translation used for TOC and search
@@ -50,11 +56,11 @@ namespace Amadon.Services
             return Task.CompletedTask;
         }
 
-        public static Task<List<string>> GetAllEntries() 
+        public static Task<List<string>> GetAllEntries()
         {
-            List<TOC_Entry> list= new List<TOC_Entry>(PersistentData.GenericData.TrackEntries);
-            List<string> result= new List<string>();
-            foreach (TOC_Entry entry in list) 
+            List<TOC_Entry> list = new List<TOC_Entry>(PersistentData.GenericData.TrackEntries);
+            List<string> result = new List<string>();
+            foreach (TOC_Entry entry in list)
             {
                 Paper paper = StaticObjects.Book.GetTocSearchTranslation().Paper(entry.Paper);
                 Paragraph par = paper.GetParagraph(entry);
@@ -63,7 +69,7 @@ namespace Amadon.Services
                     entry.Text = "";
                     result.Add($"{entry} *** Error: not found");
                 }
-                else 
+                else
                 {
                     result.Add(par.GetTrackHtml());
                 }
