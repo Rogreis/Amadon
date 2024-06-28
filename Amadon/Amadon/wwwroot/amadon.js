@@ -78,6 +78,26 @@ function getSelectedText(id) {
 //   return "";
 }
 
+function changeDivClassInTable(tableId, newClass) {
+   // Get the table element by its ID
+   var table = document.getElementById(tableId);
+
+   // Check if the table element exists
+   if (!table) {
+      console.error('Table with ID ' + tableId + ' not found.');
+      return;
+   }
+
+   // Get all div elements inside the table
+   var divs = table.getElementsByTagName('div');
+
+   // Loop through all div elements and change their class
+   for (var i = 0; i < divs.length; i++) {
+      divs[i].className = newClass;
+   }
+}
+
+
 
 
     
