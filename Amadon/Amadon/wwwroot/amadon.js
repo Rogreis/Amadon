@@ -1,11 +1,18 @@
 ﻿function jumpToAnchor(anchorLink) {
-    const cellElement = document.getElementById(anchorLink);
-    if (cellElement) {
+   var anchors = document.getElementsByName(anchorLink);
+      if (anchors.length > 0) {
+         // Return the first element with the specified name
+         cellElement= anchors[0];
+      } else {
+         console.error('Anchor with name ' + anchorLink + ' not found.');
+         return null;
+      }
+
+   if (cellElement) {
         try {
             cellElement.scrollIntoView();
         } catch (error) {   
-            // Handle routing error
-            //alert("An error occurred during routing: " + error.message);
+           console.error('Could not jump to anchor with name ' + anchorLink);
         }
     }
  }
