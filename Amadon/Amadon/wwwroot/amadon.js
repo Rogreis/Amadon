@@ -1,4 +1,6 @@
 ﻿function jumpToAnchor(anchorLink) {
+   if (anchorLink is nothing) 
+   return;
    var anchors = document.getElementsByName(anchorLink);
       if (anchors.length > 0) {
          // Return the first element with the specified name
@@ -10,7 +12,7 @@
 
    if (cellElement) {
         try {
-            cellElement.scrollIntoView();
+           cellElement.scrollIntoView({ behavior: 'smooth' });
         } catch (error) {   
            console.error('Could not jump to anchor with name ' + anchorLink);
         }

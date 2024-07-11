@@ -86,6 +86,28 @@
 
 </div>
 
+@* <script>
+    window.executeAfterPageShown = function (@anchorValue) {
+        // Check if the anchorValue is a valid string and not null
+        alert(anchorValue)
+        if (anchorValue && typeof anchorValue === 'string') {
+            // Remove leading and trailing whitespaces
+            anchorValue = anchorValue.trim();
+
+            // Scroll to the anchor with smooth behavior
+            var element = document.getElementById(anchorValue);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                console.error("Invalid anchor value or element not found:", anchorValue);
+            }
+        } else {
+            console.error("Invalid anchor value:", anchorValue);
+        }
+    };
+</script>
+ *@
+
 
 @code {
     private enum ParagraphPosition
@@ -100,6 +122,7 @@
     private NotesModal NotesModalControl;
     private Table MainTextTable;
     private Dropdown contextMenu;
+    private string? anchorValue = null;
 
     private string ExpressionToHighlight { get; set; } = "";
     string anchor = "";
@@ -237,20 +260,40 @@
         await JSRuntime.InvokeVoidAsync("selectText", id);
     }
 
-    public async void AddTotrack(string id)
+    private async void SetCurrentParagraph(TOC_Entry entry)
+    {
+        await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
+        StaticObjects.Parameters.Entry = entry;
+        string id = entry.Reference;
+        switch (StaticObjects.Parameters.TranslationForTableOfContents)
+        {
+            case TranslatioForTocSearch.Left:
+                id += "_L";
+                break;
+            case TranslatioForTocSearch.Middle:
+                id += "_M";
+                break;
+            case TranslatioForTocSearch.Right:
+                id += "_R";
+                break;
+        }
+
+        await ChangeDivClass(id, true);
+    }
+
+    public void AddTotrack(string id)
     {
         TOC_Entry entry = TOC_Entry.FromHref(id);
         AmadonEvents.NewTocEntry(entry);
-        StaticObjects.Parameters.Entry = entry;
-        await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
-        string cssClass = "p-2 highlightedPar";
-        await ChangeDivClass(id, cssClass);
+        StateHasChanged();
+        SetCurrentParagraph(entry);
         StateHasChanged();
     }
 
-    public async Task ChangeDivClass(string id, string newClass)
+    public async Task ChangeDivClass(string id, bool isSelectedParagraph)
     {
-        await JSRuntime.InvokeVoidAsync("changeClass", id, newClass);
+        string cssClass = isSelectedParagraph ? "p-2 highlightedPar" : "p-2";
+        await JSRuntime.InvokeVoidAsync("changeClass", id, cssClass);
     }
 
     public async Task<string> GetSelectedText(string id)
@@ -417,20 +460,12 @@
         await Task.Delay(1);
     }
 
-    private async void JumpToAnchor(TOC_Entry entry)
-    {
-        await Task.Delay(1);
-        await JSRuntime.InvokeVoidAsync("jumpToAnchor", $"{entry.Anchor}");
-    }
-
-
     private void ShowPage()
     {
         GetTexts();
         OnHighlightExpression(PersistentData.GenericData.HighlightedText);
         AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
         StateHasChanged();
-        JumpToAnchor(StaticObjects.Parameters.Entry);
     }
 
 
@@ -453,15 +488,19 @@
 
     public void OnNewTocEntry(TOC_Entry entry)
     {
-        StaticObjects.Parameters.Entry = entry;
         ShowPage();
+        StateHasChanged();
+        SetCurrentParagraph(entry);
+        StateHasChanged();
     }
 
 
     public void OnNewParagraphIdent(TOC_Entry entry)
     {
-        StaticObjects.Parameters.Entry = entry;
         ShowPage();
+        StateHasChanged();
+        SetCurrentParagraph(entry);
+        StateHasChanged();
     }
 
     private void OnOpenEditNoteText(UserNote note, bool readOnly)
@@ -470,16 +509,23 @@
     }
 
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             await Task.Run(() =>
-           {
-               GetTexts();
-           });
+            {
+                GetTexts();
+            });
             AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
-            StateHasChanged();
+        }
+        if (StaticObjects.Parameters.Entry != null)
+        {
+            anchorValue = StaticObjects.Parameters.Entry.Anchor;
+            // await Task.Delay(1);
+            // await JSRuntime.InvokeVoidAsync("jumpToAnchor", $"{StaticObjects.Parameters.Entry.Anchor}");
+            // StateHasChanged();
         }
     }
     #endregion
