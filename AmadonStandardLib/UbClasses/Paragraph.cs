@@ -130,7 +130,7 @@ namespace AmadonStandardLib.UbClasses
         {
             get
             {
-                return string.Format("U{0}_{1}_{2}", Paper, Section, ParagraphNo); ;
+                return Entry.Anchor;
             }
         }
 

@@ -46,6 +46,7 @@
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Middle);
                                 <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
                                         @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Middle, false))
@@ -55,6 +56,7 @@
                             @if (paragraphsLineData.RightText != null)
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Right);
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                 <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
@@ -73,18 +75,28 @@
             <DropdownMenu Style="@StyleForContextMenu()">
                 @foreach (ContextMenuItem item in ContextMenuItems)
                 {
+        <Dropdown @ref="contextMenu" Visible="@isContextMenuVisible">
+            <DropdownMenu Style="@StyleForContextMenu()">
+                @foreach (ContextMenuItem item in ContextMenuItems)
+                {
                     <DropdownItem @onkeyup="HandleKeyUp" @onclick="() => ContextMenuClicked(item)">@item.Caption</DropdownItem>
+                }
+            </DropdownMenu>
+        </Dropdown>
                 }
             </DropdownMenu>
         </Dropdown>
 
         <HelpModal @ref="ModalHelpControl"></HelpModal>
+        <HelpModal @ref="ModalHelpControl"></HelpModal>
 
+        <NotesModal @ref="NotesModalControl"></NotesModal>
         <NotesModal @ref="NotesModalControl"></NotesModal>
 
     </div>
 
 </div>
+
 
 
 @code {
@@ -109,6 +121,88 @@
     private bool isContextMenuVisible;
     private (double LeftPx, double TopPx) contextMenuPosition;
 
+    private async void JumpToAnchor()
+    {
+        if (StaticObjects.Parameters.Entry != null)
+        {
+            // Use IJSRuntime to inject the script
+            await JSRuntime.InvokeVoidAsync("jumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
+            //await JSRuntime.InvokeVoidAsync("eval", "deferJumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
+        }
+    }
+
+    /*
+    In a .NET MAUI Blazor app, `OnAfterRenderAsync` is typically used to perform actions after a component has rendered. However, it can sometimes be called before the page is fully displayed to the user, as you observed.
+
+    If `OnAfterRenderAsync` is not meeting your needs, another approach is to use a combination of JavaScript and Blazor interop to ensure your JavaScript code runs at the right time. Specifically, you can leverage the JavaScript `requestAnimationFrame` function, which will run your code after the next repaint, ensuring that the changes are visually rendered before executing your code.
+
+    Here's how you can achieve this:
+
+    1. Define the JavaScript function with `requestAnimationFrame` to defer execution.
+    2. Call this function from Blazor after rendering.
+
+    ### JavaScript Code
+
+        Place this script in your HTML or a separate JavaScript file:
+
+        ```html
+            <script>
+            var anchorLink = '';
+
+                function jumpToAnchor() {
+            const cellElement = document.getElementById(anchorLink);
+                if (cellElement) {
+                try {
+            cellElement.scrollIntoView();
+    } catch (error) {
+    console.error("An error occurred during routing: " + error.message);
+    }
+    }
+    }
+
+    function deferJumpToAnchor() {
+    requestAnimationFrame(jumpToAnchor);
+    }
+    </script>
+    ```
+
+    ### Blazor Component
+
+    Modify your Blazor component to call the deferred JavaScript function:
+
+    ```razor
+    @page "/your-page"
+    @inject IJSRuntime JS
+
+    <div>
+    <!-- Your HTML content here -->
+    <div id="your-anchor-id">This is the anchor element.</div>
+    </div>
+
+    @code {
+    private string anchorLink = "your-anchor-id"; // Define the anchor ID
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+            {
+            if (firstRender)
+            {
+            // Set the global JavaScript variable
+            await JS.InvokeVoidAsync("eval", $"anchorLink = '{anchorLink}';");
+
+            // Defer the JavaScript function call to ensure it's after repaint
+            await JS.InvokeVoidAsync("deferJumpToAnchor");
+    }
+    }
+    }
+    ```
+
+    In this example:
+
+    1. The `deferJumpToAnchor` function uses `requestAnimationFrame` to defer the `jumpToAnchor` call until after the next repaint, ensuring the page has been visually updated.
+    2. The Blazor component sets the `anchorLink` variable and calls `deferJumpToAnchor` after the first render using `OnAfterRenderAsync`.
+
+    This approach ensures that your JavaScript code runs only after the changes are fully rendered and shown to the user.
+    */
 
     private class ContextMenuItem
     {
@@ -121,6 +215,7 @@
     private enum ContextMenuFunction
     {
         None,
+        AddToTrack,
         AddToTrack,
         SelectAll,
         Copy,
@@ -135,6 +230,8 @@
         new ContextMenuItem { Caption = "Search", Function = ContextMenuFunction.Search },
         new ContextMenuItem { Caption = "Search Subjects", Function = ContextMenuFunction.SearchSubjects },
         new ContextMenuItem { Caption = "Copy", Function = ContextMenuFunction.Copy },
+        new ContextMenuItem { Caption = "Add to Track", Function = ContextMenuFunction.AddToTrack },
+        new ContextMenuItem { Caption = "Select Paragraph", Function = ContextMenuFunction.SelectAll },
         new ContextMenuItem { Caption = "Add to Track", Function = ContextMenuFunction.AddToTrack },
         new ContextMenuItem { Caption = "Select Paragraph", Function = ContextMenuFunction.SelectAll },
     };
@@ -157,9 +254,14 @@
     /// <param name="e"></param>
     /// <param name="id"></param>
     private async void OnContextMenu(ParagraphsLineData lineData, MouseEventArgs e, string id)
+    private async void OnContextMenu(ParagraphsLineData lineData, MouseEventArgs e, string id)
     {
         contextMenuPosition = (e.ClientX, e.ClientY);
         isContextMenuVisible = true;
+        foreach (ContextMenuItem menu in ContextMenuItems)
+        {
+            menu.Id = id;  // the context menu always has the latest right click table cell id
+        }
         foreach (ContextMenuItem menu in ContextMenuItems)
         {
             menu.Id = id;  // the context menu always has the latest right click table cell id
@@ -196,9 +298,14 @@
     {
         string text = "";
         switch (item.Function)
+        switch (item.Function)
         {
             case ContextMenuFunction.SelectAll:
                 await SelectDivText(item.Id);
+                break;
+
+            case ContextMenuFunction.AddToTrack:
+                AddTotrack(item.Id);
                 break;
 
             case ContextMenuFunction.AddToTrack:
@@ -237,20 +344,24 @@
         await JSRuntime.InvokeVoidAsync("selectText", id);
     }
 
-    public async void AddTotrack(string id)
+    private async void SetCurrentParagraph(TOC_Entry entry)
+    {
+        await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
+        StaticObjects.Parameters.Entry = entry;
+        await ChangeDivClass(entry.HtmlID, true);
+    }
+
+    public void AddTotrack(string id)
     {
         TOC_Entry entry = TOC_Entry.FromHref(id);
         AmadonEvents.NewTocEntry(entry);
-        StaticObjects.Parameters.Entry = entry;
-        await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
-        string cssClass = "p-2 highlightedPar";
-        await ChangeDivClass(id, cssClass);
         StateHasChanged();
     }
 
-    public async Task ChangeDivClass(string id, string newClass)
+    public async Task ChangeDivClass(string id, bool isSelectedParagraph)
     {
-        await JSRuntime.InvokeVoidAsync("changeClass", id, newClass);
+        string cssClass = isSelectedParagraph ? "p-2 highlightedPar" : "p-2";
+        await JSRuntime.InvokeVoidAsync("changeClass", id, cssClass);
     }
 
     public async Task<string> GetSelectedText(string id)
@@ -273,7 +384,7 @@
             if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].RightText);
         }
         PersistentData.GenericData.HighlightedText = string.Empty;
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     private void OnHighlightExpression(string expression)
@@ -291,7 +402,7 @@
                 if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.HighlightString(PaperLines.Lines[i].RightText, expression);
             }
         }
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     #endregion
@@ -332,6 +443,7 @@
         if (par.TranslationId == StaticObjects.Book.GetTocSearchTranslation().LanguageID && par.Entry * StaticObjects.Parameters.Entry)
         {
             cssClass += " highlightedPar";
+            cssClass += " highlightedPar";
         }
         return cssClass;
     }
@@ -346,7 +458,11 @@
     {
         string ident = StaticObjects.Parameters.ShowParagraphIdentification
                              && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ?
+        string ident = StaticObjects.Parameters.ShowParagraphIdentification
+                             && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ?
                              FormatIdentification(lineData.paragraphLeft.Identification) : "";
+        string anchor = (insertAnchor ? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
+        string startTag = "", endTag = "", text = "";
         string anchor = (insertAnchor ? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
         string startTag = "", endTag = "", text = "";
 
@@ -362,7 +478,6 @@
                 text = lineData.RightText;
                 break;
         }
-
         switch (lineData.paragraphLeft.Format)
         {
             case ParagraphHtmlType.BookTitle:
@@ -397,7 +512,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await JSRuntime.InvokeVoidAsync("setupF1KeyListener");
+        //await JSRuntime.InvokeVoidAsync("setupF1KeyListener");
         LibraryEventsControl.RedrawText += EventsControl_RedrawText;
         AmadonEvents.OnNewTocEntry += OnNewTocEntry;
         AmadonEvents.OnNewSubjectIndexEntry += OnNewTocEntry;
@@ -414,23 +529,27 @@
     private async void GetTexts()
     {
         PaperLines = await TextServiceContextMenu.GetHtml();
-        await Task.Delay(1);
+        await Task.Delay(10);
     }
 
-    private async void JumpToAnchor(TOC_Entry entry)
-    {
-        await Task.Delay(1);
-        await JSRuntime.InvokeVoidAsync("jumpToAnchor", $"{entry.Anchor}");
-    }
-
-
-    private void ShowPage()
+    private async Task ShowPage()
     {
         GetTexts();
         OnHighlightExpression(PersistentData.GenericData.HighlightedText);
         AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
-        StateHasChanged();
-        JumpToAnchor(StaticObjects.Parameters.Entry);
+        // Ensure StateHasChanged is called on the UI thread
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+        await Task.Delay(10);
+
+        SetCurrentParagraph(StaticObjects.Parameters.Entry);
+        JumpToAnchor();
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
     }
 
 
@@ -441,27 +560,26 @@
     }
 
 
-    protected void EventsControl_RedrawText()
+    protected async void EventsControl_RedrawText()
     {
-        ShowPage();
+        await ShowPage();
     }
 
-    private void TranslationsToShowChanged()
+    private async void TranslationsToShowChanged()
     {
-        ShowPage();
+        await ShowPage();
     }
 
-    public void OnNewTocEntry(TOC_Entry entry)
+    public async void OnNewTocEntry(TOC_Entry entry)
     {
         StaticObjects.Parameters.Entry = entry;
-        ShowPage();
+        await ShowPage();
     }
 
 
-    public void OnNewParagraphIdent(TOC_Entry entry)
+    public async void OnNewParagraphIdent(TOC_Entry entry)
     {
-        StaticObjects.Parameters.Entry = entry;
-        ShowPage();
+        await ShowPage();
     }
 
     private void OnOpenEditNoteText(UserNote note, bool readOnly)
@@ -470,17 +588,14 @@
     }
 
 
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await Task.Run(() =>
-           {
-               GetTexts();
-           });
+            await ShowPage();
             AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
-            StateHasChanged();
         }
-    }
+     }
     #endregion
 }
