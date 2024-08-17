@@ -115,7 +115,8 @@
         if (StaticObjects.Parameters.Entry != null)
         {
             // Use IJSRuntime to inject the script
-            await JSRuntime.InvokeVoidAsync("eval", "deferJumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
+            await JSRuntime.InvokeVoidAsync("jumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
+            //await JSRuntime.InvokeVoidAsync("eval", "deferJumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
         }
     }
 
@@ -499,7 +500,7 @@
     private async void GetTexts()
     {
         PaperLines = await TextServiceContextMenu.GetHtml();
-        await Task.Delay(1000);
+        await Task.Delay(10);
     }
 
     private async Task ShowPage()
@@ -508,6 +509,14 @@
         OnHighlightExpression(PersistentData.GenericData.HighlightedText);
         AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
         // Ensure StateHasChanged is called on the UI thread
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+        await Task.Delay(10);
+
+        SetCurrentParagraph(StaticObjects.Parameters.Entry);
+        JumpToAnchor();
         await InvokeAsync(() =>
         {
             StateHasChanged();
@@ -558,8 +567,6 @@
             await ShowPage();
             AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
         }
-        SetCurrentParagraph(StaticObjects.Parameters.Entry);
-        JumpToAnchor();
-    }
+     }
     #endregion
 }
