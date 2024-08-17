@@ -1,23 +1,30 @@
-﻿function jumpToAnchor(anchorLink) {
-   if (anchorLink is nothing) 
-   return;
+
+function jumpToAnchor(anchorLink) {
+   console.info("jumpToAnchor function: " + anchorLink);
    var anchors = document.getElementsByName(anchorLink);
-      if (anchors.length > 0) {
-         // Return the first element with the specified name
-         cellElement= anchors[0];
-      } else {
-         console.error('Anchor with name ' + anchorLink + ' not found.');
-         return null;
-      }
+   if (anchors.length > 0) {
+      // Return the first element with the specified name
+      cellElement = anchors[0];
+   } else {
+      console.info('Anchor with name ' + anchorLink + ' not found.');
+      return null;
+   }
 
    if (cellElement) {
-        try {
-           cellElement.scrollIntoView({ behavior: 'smooth' });
-        } catch (error) {   
-           console.error('Could not jump to anchor with name ' + anchorLink);
-        }
-    }
- }
+      try {
+         cellElement.scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+         console.info('Could not jump to anchor with name ' + anchorLink);
+      }
+   }
+}
+
+function deferJumpToAnchor(anchorLink) {
+   console.info("deferJumpToAnchor function: " + anchorLink);
+   requestAnimationFrame(() => jumpToAnchor(anchorLink));
+}
+
+
 
 window.registerClickEvent = function(dotNetObject) {
     document.querySelector('a').addEventListener('click', function(event) {
@@ -93,9 +100,10 @@ function changeDivClassInTable(tableId, newClass) {
 
    // Check if the table element exists
    if (!table) {
-      console.error('Table with ID ' + tableId + ' not found.');
+      console.info('Table with ID ' + tableId + ' not found.');
       return;
    }
+   console.info('Table with ID ' + tableId + ' found.');
 
    // Get all div elements inside the table
    var divs = table.getElementsByTagName('div');

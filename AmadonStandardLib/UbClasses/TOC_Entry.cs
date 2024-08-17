@@ -1,7 +1,9 @@
-﻿using AmadonStandardLib.Helpers;
+﻿using AmadonStandardLib.Classes;
+using AmadonStandardLib.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using static Lucene.Net.Search.FieldValueHitQueue;
 
 namespace AmadonStandardLib.UbClasses
 {
@@ -194,7 +196,20 @@ namespace AmadonStandardLib.UbClasses
         {
             get
             {
-                return $"U{Paper}_{Section}_{ParagraphNo}";
+                string anchor = $"U{Paper}_{Section}_{ParagraphNo}";
+                switch (StaticObjects.Parameters.TranslationForTableOfContents)
+                {
+                    case TranslatioForTocSearch.Left:
+                        anchor += "_L";
+                        break;
+                    case TranslatioForTocSearch.Middle:
+                        anchor += "_M";
+                        break;
+                    case TranslatioForTocSearch.Right:
+                        anchor += "_R";
+                        break;
+                }
+                return anchor;
             }
         }
 

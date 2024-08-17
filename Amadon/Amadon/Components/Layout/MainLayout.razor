@@ -3,7 +3,6 @@
 @using Blazorise
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
-@inject IThemeGenerator ThemeGenerator
 
 <div class="flex-grow">
     @if (ShowNavBar)
@@ -18,53 +17,10 @@
 {
     private bool ShowNavBar = false;
 
-    //Theme theme = new Theme
-    //    {
-    //        ColorOptions = new ThemeColorOptions
-    //        {
-    //            Primary = "#0d6efd",
-    //            Secondary = "#6c757d",
-    //            Success = "#198754",
-    //            Danger = "#dc3545",
-    //            Warning = "#ffc107",
-    //            Info = "#0dcaf0",
-    //            Light = "#f8f9fa",
-    //            Dark = "#212529",
-    //        },
-    //        BackgroundOptions = new ThemeBackgroundOptions
-    //        {
-    //            Primary = "#0d6efd",
-    //            Secondary = "#6c757d",
-    //            Success = "#198754",
-    //            Danger = "#dc3545",
-    //            Warning = "#ffc107",
-    //            Info = "#0dcaf0",
-    //            Light = "#f8f9fa",
-    //            Dark = "#212529",
-    //        },
-    //        TextColorOptions = new ThemeTextColorOptions
-    //        {
-    //            Primary = "#0d6efd",
-    //            Secondary = "#6c757d",
-    //            Success = "#198754",
-    //            Danger = "#dc3545",
-    //            Warning = "#ffc107",
-    //            Info = "#0dcaf0",
-    //            Light = "#f8f9fa",
-    //            Dark = "#212529",
-    //        },
-    //        ButtonOptions = new ThemeButtonOptions
-    //        {
-    //            // Add any button-specific theme options here
-    //        },
-    //        // Configure other theme options if necessary
-    //    };
-
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
         AmadonEvents.OnInitializationSuccesfully += AmadonEvents_OnInitializationSuccesfully;
-        //ThemeGenerator.GenerateVariables(theme);
     }
 
     private void AmadonEvents_OnInitializationSuccesfully()

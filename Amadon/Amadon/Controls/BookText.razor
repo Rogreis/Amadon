@@ -86,27 +86,6 @@
 
 </div>
 
-@* <script>
-    window.executeAfterPageShown = function (@anchorValue) {
-        // Check if the anchorValue is a valid string and not null
-        alert(anchorValue)
-        if (anchorValue && typeof anchorValue === 'string') {
-            // Remove leading and trailing whitespaces
-            anchorValue = anchorValue.trim();
-
-            // Scroll to the anchor with smooth behavior
-            var element = document.getElementById(anchorValue);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                console.error("Invalid anchor value or element not found:", anchorValue);
-            }
-        } else {
-            console.error("Invalid anchor value:", anchorValue);
-        }
-    };
-</script>
- *@
 
 
 @code {
@@ -122,7 +101,6 @@
     private NotesModal NotesModalControl;
     private Table MainTextTable;
     private Dropdown contextMenu;
-    private string? anchorValue = null;
 
     private string ExpressionToHighlight { get; set; } = "";
     string anchor = "";
@@ -132,6 +110,87 @@
     private bool isContextMenuVisible;
     private (double LeftPx, double TopPx) contextMenuPosition;
 
+    private async void JumpToAnchor()
+    {
+        if (StaticObjects.Parameters.Entry != null)
+        {
+            // Use IJSRuntime to inject the script
+            await JSRuntime.InvokeVoidAsync("eval", "deferJumpToAnchor", StaticObjects.Parameters.Entry.Anchor);
+        }
+    }
+
+    /*
+    In a .NET MAUI Blazor app, `OnAfterRenderAsync` is typically used to perform actions after a component has rendered. However, it can sometimes be called before the page is fully displayed to the user, as you observed.
+
+    If `OnAfterRenderAsync` is not meeting your needs, another approach is to use a combination of JavaScript and Blazor interop to ensure your JavaScript code runs at the right time. Specifically, you can leverage the JavaScript `requestAnimationFrame` function, which will run your code after the next repaint, ensuring that the changes are visually rendered before executing your code.
+
+    Here's how you can achieve this:
+
+    1. Define the JavaScript function with `requestAnimationFrame` to defer execution.
+    2. Call this function from Blazor after rendering.
+
+    ### JavaScript Code
+
+        Place this script in your HTML or a separate JavaScript file:
+
+        ```html
+            <script>
+            var anchorLink = '';
+
+                function jumpToAnchor() {
+            const cellElement = document.getElementById(anchorLink);
+                if (cellElement) {
+                try {
+            cellElement.scrollIntoView();
+    } catch (error) {
+    console.error("An error occurred during routing: " + error.message);
+    }
+    }
+    }
+
+    function deferJumpToAnchor() {
+    requestAnimationFrame(jumpToAnchor);
+    }
+    </script>
+    ```
+
+    ### Blazor Component
+
+    Modify your Blazor component to call the deferred JavaScript function:
+
+    ```razor
+    @page "/your-page"
+    @inject IJSRuntime JS
+
+    <div>
+    <!-- Your HTML content here -->
+    <div id="your-anchor-id">This is the anchor element.</div>
+    </div>
+
+    @code {
+    private string anchorLink = "your-anchor-id"; // Define the anchor ID
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+            {
+            if (firstRender)
+            {
+            // Set the global JavaScript variable
+            await JS.InvokeVoidAsync("eval", $"anchorLink = '{anchorLink}';");
+
+            // Defer the JavaScript function call to ensure it's after repaint
+            await JS.InvokeVoidAsync("deferJumpToAnchor");
+    }
+    }
+    }
+    ```
+
+    In this example:
+
+    1. The `deferJumpToAnchor` function uses `requestAnimationFrame` to defer the `jumpToAnchor` call until after the next repaint, ensuring the page has been visually updated.
+    2. The Blazor component sets the `anchorLink` variable and calls `deferJumpToAnchor` after the first render using `OnAfterRenderAsync`.
+
+    This approach ensures that your JavaScript code runs only after the changes are fully rendered and shown to the user.
+    */
 
     private class ContextMenuItem
     {
@@ -264,29 +323,13 @@
     {
         await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
         StaticObjects.Parameters.Entry = entry;
-        string id = entry.Reference;
-        switch (StaticObjects.Parameters.TranslationForTableOfContents)
-        {
-            case TranslatioForTocSearch.Left:
-                id += "_L";
-                break;
-            case TranslatioForTocSearch.Middle:
-                id += "_M";
-                break;
-            case TranslatioForTocSearch.Right:
-                id += "_R";
-                break;
-        }
-
-        await ChangeDivClass(id, true);
+        await ChangeDivClass(entry.Anchor, true);
     }
 
     public void AddTotrack(string id)
     {
         TOC_Entry entry = TOC_Entry.FromHref(id);
         AmadonEvents.NewTocEntry(entry);
-        StateHasChanged();
-        SetCurrentParagraph(entry);
         StateHasChanged();
     }
 
@@ -316,7 +359,7 @@
             if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].RightText);
         }
         PersistentData.GenericData.HighlightedText = string.Empty;
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     private void OnHighlightExpression(string expression)
@@ -334,7 +377,7 @@
                 if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.HighlightString(PaperLines.Lines[i].RightText, expression);
             }
         }
-        StateHasChanged();
+        //StateHasChanged();
     }
 
     #endregion
@@ -405,7 +448,6 @@
                 text = lineData.RightText;
                 break;
         }
-
         switch (lineData.paragraphLeft.Format)
         {
             case ParagraphHtmlType.BookTitle:
@@ -440,7 +482,7 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await JSRuntime.InvokeVoidAsync("setupF1KeyListener");
+        //await JSRuntime.InvokeVoidAsync("setupF1KeyListener");
         LibraryEventsControl.RedrawText += EventsControl_RedrawText;
         AmadonEvents.OnNewTocEntry += OnNewTocEntry;
         AmadonEvents.OnNewSubjectIndexEntry += OnNewTocEntry;
@@ -457,15 +499,19 @@
     private async void GetTexts()
     {
         PaperLines = await TextServiceContextMenu.GetHtml();
-        await Task.Delay(1);
+        await Task.Delay(1000);
     }
 
-    private void ShowPage()
+    private async Task ShowPage()
     {
         GetTexts();
         OnHighlightExpression(PersistentData.GenericData.HighlightedText);
         AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
-        StateHasChanged();
+        // Ensure StateHasChanged is called on the UI thread
+        await InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
     }
 
 
@@ -476,31 +522,26 @@
     }
 
 
-    protected void EventsControl_RedrawText()
+    protected async void EventsControl_RedrawText()
     {
-        ShowPage();
+        await ShowPage();
     }
 
-    private void TranslationsToShowChanged()
+    private async void TranslationsToShowChanged()
     {
-        ShowPage();
+        await ShowPage();
     }
 
-    public void OnNewTocEntry(TOC_Entry entry)
+    public async void OnNewTocEntry(TOC_Entry entry)
     {
-        ShowPage();
-        StateHasChanged();
-        SetCurrentParagraph(entry);
-        StateHasChanged();
+        StaticObjects.Parameters.Entry = entry;
+        await ShowPage();
     }
 
 
-    public void OnNewParagraphIdent(TOC_Entry entry)
+    public async void OnNewParagraphIdent(TOC_Entry entry)
     {
-        ShowPage();
-        StateHasChanged();
-        SetCurrentParagraph(entry);
-        StateHasChanged();
+        await ShowPage();
     }
 
     private void OnOpenEditNoteText(UserNote note, bool readOnly)
@@ -514,19 +555,11 @@
     {
         if (firstRender)
         {
-            await Task.Run(() =>
-            {
-                GetTexts();
-            });
+            await ShowPage();
             AmadonEvents.UpdateParagraphIdent(StaticObjects.Parameters.Entry);
         }
-        if (StaticObjects.Parameters.Entry != null)
-        {
-            anchorValue = StaticObjects.Parameters.Entry.Anchor;
-            // await Task.Delay(1);
-            // await JSRuntime.InvokeVoidAsync("jumpToAnchor", $"{StaticObjects.Parameters.Entry.Anchor}");
-            // StateHasChanged();
-        }
+        SetCurrentParagraph(StaticObjects.Parameters.Entry);
+        JumpToAnchor();
     }
     #endregion
 }
