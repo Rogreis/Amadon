@@ -46,6 +46,7 @@
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Middle);
                                 <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
                                         @((MarkupString)GenerateParagraphText(paragraphsLineData, ParagraphPosition.Middle, false))
@@ -55,6 +56,7 @@
                             @if (paragraphsLineData.RightText != null)
                             {
                                 string id = @GenerateParagraphId(paragraphsLineData.paragraphLeft, ParagraphPosition.Right);
+                                <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                 <TableRowCell @oncontextmenu="(e)=> OnContextMenu(paragraphsLineData, e, id)">
                                     <Div id="@id"
                                          Class="@GenerateParagraphClass(paragraphsLineData.paragraphLeft)">
@@ -73,13 +75,22 @@
             <DropdownMenu Style="@StyleForContextMenu()">
                 @foreach (ContextMenuItem item in ContextMenuItems)
                 {
+        <Dropdown @ref="contextMenu" Visible="@isContextMenuVisible">
+            <DropdownMenu Style="@StyleForContextMenu()">
+                @foreach (ContextMenuItem item in ContextMenuItems)
+                {
                     <DropdownItem @onkeyup="HandleKeyUp" @onclick="() => ContextMenuClicked(item)">@item.Caption</DropdownItem>
+                }
+            </DropdownMenu>
+        </Dropdown>
                 }
             </DropdownMenu>
         </Dropdown>
 
         <HelpModal @ref="ModalHelpControl"></HelpModal>
+        <HelpModal @ref="ModalHelpControl"></HelpModal>
 
+        <NotesModal @ref="NotesModalControl"></NotesModal>
         <NotesModal @ref="NotesModalControl"></NotesModal>
 
     </div>
@@ -205,6 +216,7 @@
     {
         None,
         AddToTrack,
+        AddToTrack,
         SelectAll,
         Copy,
         Highlight,
@@ -218,6 +230,8 @@
         new ContextMenuItem { Caption = "Search", Function = ContextMenuFunction.Search },
         new ContextMenuItem { Caption = "Search Subjects", Function = ContextMenuFunction.SearchSubjects },
         new ContextMenuItem { Caption = "Copy", Function = ContextMenuFunction.Copy },
+        new ContextMenuItem { Caption = "Add to Track", Function = ContextMenuFunction.AddToTrack },
+        new ContextMenuItem { Caption = "Select Paragraph", Function = ContextMenuFunction.SelectAll },
         new ContextMenuItem { Caption = "Add to Track", Function = ContextMenuFunction.AddToTrack },
         new ContextMenuItem { Caption = "Select Paragraph", Function = ContextMenuFunction.SelectAll },
     };
@@ -240,9 +254,14 @@
     /// <param name="e"></param>
     /// <param name="id"></param>
     private async void OnContextMenu(ParagraphsLineData lineData, MouseEventArgs e, string id)
+    private async void OnContextMenu(ParagraphsLineData lineData, MouseEventArgs e, string id)
     {
         contextMenuPosition = (e.ClientX, e.ClientY);
         isContextMenuVisible = true;
+        foreach (ContextMenuItem menu in ContextMenuItems)
+        {
+            menu.Id = id;  // the context menu always has the latest right click table cell id
+        }
         foreach (ContextMenuItem menu in ContextMenuItems)
         {
             menu.Id = id;  // the context menu always has the latest right click table cell id
@@ -279,9 +298,14 @@
     {
         string text = "";
         switch (item.Function)
+        switch (item.Function)
         {
             case ContextMenuFunction.SelectAll:
                 await SelectDivText(item.Id);
+                break;
+
+            case ContextMenuFunction.AddToTrack:
+                AddTotrack(item.Id);
                 break;
 
             case ContextMenuFunction.AddToTrack:
@@ -419,6 +443,7 @@
         if (par.TranslationId == StaticObjects.Book.GetTocSearchTranslation().LanguageID && par.Entry * StaticObjects.Parameters.Entry)
         {
             cssClass += " highlightedPar";
+            cssClass += " highlightedPar";
         }
         return cssClass;
     }
@@ -433,7 +458,11 @@
     {
         string ident = StaticObjects.Parameters.ShowParagraphIdentification
                              && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ?
+        string ident = StaticObjects.Parameters.ShowParagraphIdentification
+                             && (lineData.paragraphLeft.Format == ParagraphHtmlType.NormalParagraph || lineData.paragraphLeft.Format == ParagraphHtmlType.IdentedParagraph) ?
                              FormatIdentification(lineData.paragraphLeft.Identification) : "";
+        string anchor = (insertAnchor ? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
+        string startTag = "", endTag = "", text = "";
         string anchor = (insertAnchor ? $"<a name =\"{lineData.paragraphLeft.AName}\"/>" : "");
         string startTag = "", endTag = "", text = "";
 
