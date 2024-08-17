@@ -190,6 +190,27 @@ namespace AmadonStandardLib.UbClasses
             }
         }
 
+        [JsonIgnore]
+        public string HtmlID
+        {
+            get
+            {
+                string htmlId = ParagraphIDNoPage;
+                switch (StaticObjects.Parameters.TranslationForTableOfContents)
+                {
+                    case TranslatioForTocSearch.Left:
+                        htmlId += "_L";
+                        break;
+                    case TranslatioForTocSearch.Middle:
+                        htmlId += "_M";
+                        break;
+                    case TranslatioForTocSearch.Right:
+                        htmlId += "_R";
+                        break;
+                }
+                return htmlId;
+            }
+        }
 
         [JsonIgnore]
         public string Anchor

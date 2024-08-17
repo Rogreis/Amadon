@@ -12,7 +12,10 @@ function jumpToAnchor(anchorLink) {
 
    if (cellElement) {
       try {
-         cellElement.scrollIntoView({ behavior: 'smooth' });
+         cellElement.scrollIntoView({
+            behavior: 'auto', // Scrolls immediately
+            block: 'center'   // Aligns the element to the center of the visible area
+         });
       } catch (error) {
          console.info('Could not jump to anchor with name ' + anchorLink);
       }
@@ -73,8 +76,10 @@ function selectText(id) {
 }
 
 function changeClass(id, newClass) {
+   console.info("Starting changeClass id: " + id );
    var element = document.getElementById(id);
    if (element) {
+      console.info("changeClass id: " + id + ' found');
       element.className = newClass;
    }
 }
@@ -100,13 +105,14 @@ function changeDivClassInTable(tableId, newClass) {
 
    // Check if the table element exists
    if (!table) {
-      console.info('Table with ID ' + tableId + ' not found.');
+      console.info('Table with ID ' + tableId + ' not found for changeDivClassInTable.');
       return;
    }
-   console.info('Table with ID ' + tableId + ' found.');
+   console.info('Table with ID ' + tableId + ' found for changeDivClassInTable.');
 
    // Get all div elements inside the table
    var divs = table.getElementsByTagName('div');
+   console.info('changeDivClassInTable divs found: ' + divs.length);
 
    // Loop through all div elements and change their class
    for (var i = 0; i < divs.length; i++) {

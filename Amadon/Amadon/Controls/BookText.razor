@@ -324,7 +324,7 @@
     {
         await JSRuntime.InvokeVoidAsync("changeDivClassInTable", tableId, "p-2");
         StaticObjects.Parameters.Entry = entry;
-        await ChangeDivClass(entry.Anchor, true);
+        await ChangeDivClass(entry.HtmlID, true);
     }
 
     public void AddTotrack(string id)
