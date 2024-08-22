@@ -353,14 +353,14 @@
 
     private void UnhighlightAll()
     {
-        for (int i = 0; i < PaperLines.Titles.Count; i++)
+        for (int i = 0; i < PaperLines.Lines.Count; i++)
         {
             PaperLines.Lines[i].paragraphLeft.Text = HighlightTexts.UnhighlightString(PaperLines.Lines[i].paragraphLeft.Text);
             if (PaperLines.Lines[i].MiddleText != null) PaperLines.Lines[i].MiddleText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].MiddleText);
             if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].RightText);
         }
         PersistentData.GenericData.HighlightedText = string.Empty;
-        //StateHasChanged();
+        StateHasChanged();
     }
 
     private void OnHighlightExpression(string expression)
@@ -370,7 +370,7 @@
         if (!string.IsNullOrEmpty(expression))
         {
             PersistentData.GenericData.HighlightedText = expression;
-            for (int i = 0; i < PaperLines.Titles.Count; i++)
+            for (int i = 0; i < PaperLines.Lines.Count; i++)
             {
 
                 PaperLines.Lines[i].paragraphLeft.Text = HighlightTexts.HighlightString(PaperLines.Lines[i].paragraphLeft.Text, expression);
@@ -378,7 +378,7 @@
                 if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.HighlightString(PaperLines.Lines[i].RightText, expression);
             }
         }
-        //StateHasChanged();
+        StateHasChanged();
     }
 
     #endregion
@@ -550,6 +550,7 @@
 
     public async void OnNewParagraphIdent(TOC_Entry entry)
     {
+        StaticObjects.Parameters.Entry = entry;
         await ShowPage();
     }
 

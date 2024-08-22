@@ -1,5 +1,6 @@
 ﻿@using AmadonStandardLib.Helpers;
 @using AmadonStandardLib.UbClasses;
+@using Blazorise
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
 @inject NavigationManager NavigationManager
@@ -38,75 +39,114 @@
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToTOC">
-                        <span class="oi oi-list" aria-hidden="true"></span> Table of Contents
-                    </NavLink>
+                    <Tooltip Text="Open the Table of Contents page" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToTOC">
+                            <span class="oi oi-list" aria-hidden="true"></span> Table of Contents
+                        </NavLink>
+                    </Tooltip>
                 </li>
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToIndex">
-                        <span class="oi oi-star" aria-hidden="true"></span> Index
-                    </NavLink>
+                    <Tooltip Text="Open the subject index page" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToIndex">
+                            <span class="oi oi-star" aria-hidden="true"></span> Index
+                        </NavLink>
+                    </Tooltip>
                 </li>
 
-@*                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToStudies">
-                        <span class="oi oi-eye" aria-hidden="true"></span> Studies
-                    </NavLink>
+@*
+                <li class="nav-item px-3">
+                   <Tooltip Text="Open the page for studies" Placement="TooltipPlacement.Top">
+                      <NavLink class="nav-link" @onclick="LinkToStudies">
+                         <span class="oi oi-eye" aria-hidden="true"></span> Studies
+                      </NavLink>
+                   </Tooltip>
                 </li>
  *@                
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToSearch">
-                        <span class="oi oi-envelope-closed" aria-hidden="true"></span> Search
-                    </NavLink>
+                    <Tooltip Text="Open the search page" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToSearch">
+                            <span class="oi oi-envelope-closed" aria-hidden="true"></span> Search
+                        </NavLink>
+                    </Tooltip>
                 </li>
 
-@*                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToNotes">
-                        <span class="oi oi-comment-square" aria-hidden="true"></span> Notes
-                    </NavLink>
+@*
+                 <li class="nav-item px-3">
+                      <Tooltip Text="Open the page for notes" Placement="TooltipPlacement.Top">
+                         <NavLink class="nav-link" @onclick="LinkToNotes">
+                            <span class="oi oi-comment-square" aria-hidden="true"></span> Notes
+                         </NavLink>
+                      </Tooltip>
                 </li>
  *@
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToTrack">
-                        <span class="oi oi-location" aria-hidden="true"></span> Track
-                    </NavLink>
+                    <Tooltip Text="Open the track (historical order of paragraphs seen) page" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToTrack">
+                            <span class="oi oi-location" aria-hidden="true"></span> Track
+                        </NavLink>
+                    </Tooltip>
                 </li>
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToSettings">
-                        <span class="oi oi-target" aria-hidden="true"></span> Settings
-                    </NavLink>
+                    <Tooltip Text="Open the settings page" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToSettings">
+                            <span class="oi oi-target" aria-hidden="true"></span> Settings
+                        </NavLink>
+                    </Tooltip>
                 </li>
                 <li class="nav-item px-3">
-                    <NavLink class="nav-link" @onclick="LinkToHelp">
-                        <span class="oi oi-question-mark" aria-hidden="true"></span> Help
-                    </NavLink>
+                    <Tooltip Text="Open help text" Placement="TooltipPlacement.Top">
+                        <NavLink class="nav-link" @onclick="LinkToHelp">
+                            <span class="oi oi-question-mark" aria-hidden="true"></span> Help
+                        </NavLink>
+                    </Tooltip>
                 </li>
             </ul>
 
-            <NavLink class="nav-link" @onclick="JumpToFirstPaper">
-                <span class="oi oi oi-media-step-backward custom-nav-link-right" aria-hidden="true"></span>
-            </NavLink>
-            <NavLink class="nav-link" @onclick="JumpToPreviousPaper">
-                <span class="oi oi oi-media-skip-backward custom-nav-link-right" aria-hidden="true"></span>
-            </NavLink>
-            <NavLink class="nav-link" @onclick="JumpToPreviousReference">
-                <span class="oi oi oi-chevron-left" aria-hidden="true"></span>
-            </NavLink>
+            <Tooltip Text="Click to jump to the first part paper or last one from previous part" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToFirstPaper">
+                    <span class="oi oi oi-media-step-backward custom-nav-link-right" aria-hidden="true"></span>
+                </NavLink>
+            </Tooltip>
+    
+            <Tooltip Text="Click to jump to the previous paper" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToPreviousPaper">
+                    <span class="oi oi oi-media-skip-backward custom-nav-link-right" aria-hidden="true"></span>
+                </NavLink>
+            </Tooltip>
 
-            <Blazorise.TextEdit Class="form-control custom-input-ident" @bind-Text="@ParagraphIdent" @onkeydown="HandleKeyDownIdent" MaxLength="15" Placeholder="Paragraph ident" />
+            <Tooltip Text="Click to jump to the previous paragraph" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToPreviousReference">
+                    <span class="oi oi oi-chevron-left" aria-hidden="true"></span>
+                </NavLink>
+            </Tooltip>
 
-            <NavLink class="nav-link" @onclick="JumpToNextReference">
-                <span class="oi oi oi-chevron-right custom-nav-link-right" aria-hidden="true"> </span>
-            </NavLink>
-            <NavLink class="nav-link" @onclick="JumpToNextPaper">
-                <span class="oi oi oi-media-skip-forward custom-nav-link-right" aria-hidden="true"> </span>
-            </NavLink>
-            <NavLink class="nav-link" @onclick="JumpToLastPaper">
-                <span class="oi oi oi-media-step-forward" aria-hidden="true"></span>
-            </NavLink>
+            <Tooltip Text="Type a reference to a paragraph (10:5-1 or 10 5 1 or 10:5:1 or 10-5-5) and hit enter" Placement="TooltipPlacement.Top">
+                <Blazorise.TextEdit Class="form-control custom-input-ident" @bind-Text="@ParagraphIdent" @onkeydown="HandleKeyDownIdent" MaxLength="15" Placeholder="Paragraph ident" />
+            </Tooltip>
+
+            <Tooltip Text="Click to jump to the next paragraph" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToNextReference">
+                    <span class="oi oi oi-chevron-right custom-nav-link-right" aria-hidden="true"></span>
+                </NavLink>
+            </Tooltip>
+
+            <Tooltip Text="Click to jump to the next paper" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToNextPaper">
+                    <span class="oi oi oi-media-skip-forward custom-nav-link-right" aria-hidden="true"> </span>
+                </NavLink>
+            </Tooltip>
+
+            <Tooltip Text="Click to jump to the last part paper or first of the next part" Placement="TooltipPlacement.Top">
+                <NavLink class="nav-link" @onclick="JumpToLastPaper">
+                    <span class="oi oi oi-media-step-forward" aria-hidden="true"></span>
+                </NavLink>
+            </Tooltip>
+
+            <Tooltip Text="Type a text to highlight it in the text and hit enter - or empty to remove highlights" Placement="TooltipPlacement.Top">
+                <Blazorise.TextEdit Class="form-control me-2 highlightField custom-input-high" @bind-Text="@ExpressionToSearch" @onkeydown="HandleKeyDownHigh" MaxLength="150" Placeholder="Expression to highlight" />
+            </Tooltip>
 
 
-            <Blazorise.TextEdit Class="form-control me-2 highlightField custom-input-high" @bind-Text="@ExpressionToSearch" @onkeydown="HandleKeyDownHigh" MaxLength="150" Placeholder="Expression to highlight" />
 
         </div>
     </div>
@@ -245,7 +285,7 @@
     private void SentParagraphIdent(TOC_Entry entry)
     {
         ParagraphIdent = entry.Reference;
-        //StateHasChanged();
+        StateHasChanged();
     }
 
     private void FireTopNavCommand(string eventName)
