@@ -1,12 +1,10 @@
 
 function jumpToAnchor(anchorLink) {
-   console.info("jumpToAnchor function: " + anchorLink);
    var anchors = document.getElementsByName(anchorLink);
    if (anchors.length > 0) {
       // Return the first element with the specified name
       cellElement = anchors[0];
    } else {
-      console.info('Anchor with name ' + anchorLink + ' not found.');
       return null;
    }
 
@@ -23,7 +21,6 @@ function jumpToAnchor(anchorLink) {
 }
 
 function deferJumpToAnchor(anchorLink) {
-   console.info("deferJumpToAnchor function: " + anchorLink);
    requestAnimationFrame(() => jumpToAnchor(anchorLink));
 }
 
@@ -76,52 +73,40 @@ function selectText(id) {
 }
 
 function changeClass(id, newClass) {
-   console.info("Starting changeClass id: " + id );
    var element = document.getElementById(id);
    if (element) {
-      console.info("changeClass id: " + id + ' found');
       element.className = newClass;
    }
 }
+
+
 
 function getSelectedText(id) {
 
    var selection = window.getSelection();
    var selectedText = selection.toString();
    return selectedText;
-
-//   var element = document.getElementById(id);
-//   if (element) {
-//      var selection = window.getSelection();
-//      var selectedText = selection.toString();
-//      return selectedText;
-//   }
-//   return "";
-}
+} // <-- Added missing closing brace here
 
 function changeDivClassInTable(tableId, newClass) {
-   // Get the table element by its ID
-   var table = document.getElementById(tableId);
+   try {
+      // Get the table element by its ID
+      var table = document.getElementById(tableId);
 
-   // Check if the table element exists
-   if (!table) {
-      console.info('Table with ID ' + tableId + ' not found for changeDivClassInTable.');
-      return;
-   }
-   console.info('Table with ID ' + tableId + ' found for changeDivClassInTable.');
+      // Check if the table element exists
+      if (!table) {
+         return;
+      }
 
-   // Get all div elements inside the table
-   var divs = table.getElementsByTagName('div');
-   console.info('changeDivClassInTable divs found: ' + divs.length);
+      // Get all div elements inside the table
+      var divs = table.getElementsByTagName('div');
 
-   // Loop through all div elements and change their class
-   for (var i = 0; i < divs.length; i++) {
-      divs[i].className = newClass;
+      // Loop through all div elements and change their class
+      for (var i = 0; i < divs.length; i++) {
+         divs[i].className = newClass;
+      }
+   } catch (error) {
+      // Ignore any errors
+      console.error("An error occurred in changeDivClassInTable:", error);
    }
 }
-
-
-
-
-    
-

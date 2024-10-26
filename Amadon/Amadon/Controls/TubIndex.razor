@@ -4,6 +4,8 @@
 @using AmadonStandardLib.InterchangeData;
 @using AmadonStandardLib.UbClasses;
 @using Blazorise
+@using Microsoft.JSInterop
+@inject IJSRuntime JSRuntime;
 
 
 <style>
@@ -14,6 +16,7 @@
     }
 
 </style>
+
 
 <h5>Search the subject index titles:</h5>
 
@@ -47,6 +50,7 @@
         {
             <h3 style="color:gold">@PersistentData.GenericData.TubIndex.Title</h3>
 
+            int i = 0;
             @foreach (IndexDetails detail in @PersistentData.GenericData.TubIndex.Details)
             {
                 <blockquote>
@@ -63,8 +67,10 @@
                     {
                         @foreach (string link in detail.Links)
                         {
+                            string idLink = CreateIndexLinkID(i);
+                            i += 1;
                             @((MarkupString)@space)
-                            <Blazorise.Link Clicked="@(()=> ButtonClicked(@link))">@link</Blazorise.Link>
+                            <a id="@idLink" class="amadon_link" onclick="@(()=> ButtonClicked(@idLink, @link))">@link</a>
                         }
                     }
                 </blockquote>
@@ -162,6 +168,10 @@
         {
             item.IsActive = true;
             PersistentData.GenericData.TubIndex = await Task.Run(() => SearchIndexService.GetSubjectItemsToShow(item.Subject));
+            // Clean up the old information about subject
+            PersistentData.GenericData.browserSubjectsFound = false;
+            StateHasChanged();
+            // Show new information about subject
             PersistentData.GenericData.browserSubjectsFound = PersistentData.GenericData.TubIndex != null;
             StateHasChanged();
         }
@@ -185,10 +195,17 @@
     }
 
 
-
-    protected void ButtonClicked(string option)
+    private string CreateIndexLinkID(int i)
     {
+        return $"subject_index_link_{i:000}";
+    }
+
+    protected async void ButtonClicked(string indexLinkID, string option)
+    {
+        // Call JavaScript to change the CSS class to "visited"
+        await JSRuntime.InvokeVoidAsync("changeClass", indexLinkID, "amadon_link_visited");
         AmadonEvents.NewSubjectIndexEntry(TOC_Entry.FromHref(option));
+        StateHasChanged();
     }
 
     /// <summary>
