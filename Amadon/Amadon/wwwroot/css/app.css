@@ -202,15 +202,25 @@ a, .btn-link {
 }
 
 
+.amadon_link {
+   color: gold;
+   text-decoration: none;
+}
+
+.amadon_link_visited {
+   color: magenta;
+   text-decoration: none;
+}
+
 a {
     color: gold;
     text-decoration: none;
 }
 
-    a:link {
-        color: gold;
-        text-decoration: none;
-    }
+a:link {
+   color: gold;
+   text-decoration: none;
+}
 
 /* visited link */
 a:visited {
@@ -219,11 +229,11 @@ a:visited {
 }
 
 /* mouse over link */
-    a:hover {
-        cursor: pointer;
-        color: gold;
-        text-decoration: underline;
-    }
+a:hover {
+   cursor: pointer;
+   color: gold;
+   text-decoration: underline;
+}
 
 /* selected link */
 a:active {
