@@ -212,7 +212,7 @@ a, .btn-link {
    text-decoration: none;
 }
 
-a {
+/*a {
     color: gold;
     text-decoration: none;
 }
@@ -220,26 +220,26 @@ a {
 a:link {
    color: gold;
    text-decoration: none;
-}
+}*/
 
 /* visited link */
-a:visited {
+/*a:visited {
     color: magenta;
     text-decoration: none;
-}
+}*/
 
 /* mouse over link */
-a:hover {
+/*a:hover {
    cursor: pointer;
    color: gold;
    text-decoration: underline;
-}
+}*/
 
 /* selected link */
-a:active {
+/*a:active {
     text-decoration: none;
     color: gold;
-}
+}*/
 
 .pagination.small-font {
    font-size: smaller;

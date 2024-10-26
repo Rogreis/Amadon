@@ -69,9 +69,10 @@
                     {
                         @foreach (string link in detail.Links)
                         {
+                            string idLink = CreateIndexLinkID(i);
+                            i += 1;
                             @((MarkupString)@space)
                             <a id="@idLink" class="amadon_link" onclick="@(()=> ButtonClicked(@idLink, @link))">@link</a>
-                            //<Blazorise.Link id="@CreateIndexLinkID(i)" Class="amadon_link" Clicked="@(()=> ButtonClicked(@CreateIndexLinkID(i), @link))">@link</Blazorise.Link>
                         }
                     }
                 </blockquote>
@@ -169,6 +170,10 @@
         {
             item.IsActive = true;
             PersistentData.GenericData.TubIndex = await Task.Run(() => SearchIndexService.GetSubjectItemsToShow(item.Subject));
+            // Clean up the old information about subject
+            PersistentData.GenericData.browserSubjectsFound = false;
+            StateHasChanged();
+            // Show new information about subject
             PersistentData.GenericData.browserSubjectsFound = PersistentData.GenericData.TubIndex != null;
             StateHasChanged();
         }
