@@ -53,6 +53,8 @@
             int i = 0;
             @foreach (IndexDetails detail in @PersistentData.GenericData.TubIndex.Details)
             {
+                string idLink = CreateIndexLinkID(i);
+                i += 1;
                 <blockquote>
                     @if (detail.DetailType == 2)
                     {
