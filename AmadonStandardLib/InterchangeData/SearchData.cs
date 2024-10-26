@@ -59,8 +59,8 @@ namespace AmadonStandardLib.InterchangeData
                 if (Part2Included) { parts += " II"; }
                 if (Part3Included) { parts += " III"; }
                 if (Part4Included) { parts += " IV"; }
-                if (string.IsNullOrWhiteSpace(parts)) return "Search includes no Book's part.";
-                return "Parts includes in the search: " + parts.Trim();
+                if (string.IsNullOrWhiteSpace(parts)) return "No part choosen to be searched.";
+                return "Searched in: " + parts.Trim();
             }
         }
 

@@ -63,16 +63,16 @@
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-        <PackageReference Include="Blazorise" Version="1.5.2" />
-        <PackageReference Include="Blazorise.Bootstrap5" Version="1.5.2" />
-        <PackageReference Include="Blazorise.DataGrid" Version="1.5.2" />
-        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.5.2" />
-        <PackageReference Include="Blazorise.RichTextEdit" Version="1.5.2" />
-        <PackageReference Include="Blazorise.TreeView" Version="1.5.2" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.21" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.21" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.21" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+        <PackageReference Include="Blazorise" Version="1.6.2" />
+        <PackageReference Include="Blazorise.Bootstrap5" Version="1.6.2" />
+        <PackageReference Include="Blazorise.DataGrid" Version="1.6.2" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.6.2" />
+        <PackageReference Include="Blazorise.RichTextEdit" Version="1.6.2" />
+        <PackageReference Include="Blazorise.TreeView" Version="1.6.2" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.92" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.92" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>

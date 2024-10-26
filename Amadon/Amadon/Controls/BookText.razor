@@ -120,79 +120,6 @@
         }
     }
 
-    /*
-    In a .NET MAUI Blazor app, `OnAfterRenderAsync` is typically used to perform actions after a component has rendered. However, it can sometimes be called before the page is fully displayed to the user, as you observed.
-
-    If `OnAfterRenderAsync` is not meeting your needs, another approach is to use a combination of JavaScript and Blazor interop to ensure your JavaScript code runs at the right time. Specifically, you can leverage the JavaScript `requestAnimationFrame` function, which will run your code after the next repaint, ensuring that the changes are visually rendered before executing your code.
-
-    Here's how you can achieve this:
-
-    1. Define the JavaScript function with `requestAnimationFrame` to defer execution.
-    2. Call this function from Blazor after rendering.
-
-    ### JavaScript Code
-
-        Place this script in your HTML or a separate JavaScript file:
-
-        ```html
-            <script>
-            var anchorLink = '';
-
-                function jumpToAnchor() {
-            const cellElement = document.getElementById(anchorLink);
-                if (cellElement) {
-                try {
-            cellElement.scrollIntoView();
-    } catch (error) {
-    console.error("An error occurred during routing: " + error.message);
-    }
-    }
-    }
-
-    function deferJumpToAnchor() {
-    requestAnimationFrame(jumpToAnchor);
-    }
-    </script>
-    ```
-
-    ### Blazor Component
-
-    Modify your Blazor component to call the deferred JavaScript function:
-
-    ```razor
-    @page "/your-page"
-    @inject IJSRuntime JS
-
-    <div>
-    <!-- Your HTML content here -->
-    <div id="your-anchor-id">This is the anchor element.</div>
-    </div>
-
-    @code {
-    private string anchorLink = "your-anchor-id"; // Define the anchor ID
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-            {
-            if (firstRender)
-            {
-            // Set the global JavaScript variable
-            await JS.InvokeVoidAsync("eval", $"anchorLink = '{anchorLink}';");
-
-            // Defer the JavaScript function call to ensure it's after repaint
-            await JS.InvokeVoidAsync("deferJumpToAnchor");
-    }
-    }
-    }
-    ```
-
-    In this example:
-
-    1. The `deferJumpToAnchor` function uses `requestAnimationFrame` to defer the `jumpToAnchor` call until after the next repaint, ensuring the page has been visually updated.
-    2. The Blazor component sets the `anchorLink` variable and calls `deferJumpToAnchor` after the first render using `OnAfterRenderAsync`.
-
-    This approach ensures that your JavaScript code runs only after the changes are fully rendered and shown to the user.
-    */
-
     private class ContextMenuItem
     {
         public string Caption { get; set; } = "";
@@ -353,14 +280,14 @@
 
     private void UnhighlightAll()
     {
-        for (int i = 0; i < PaperLines.Titles.Count; i++)
+        for (int i = 0; i < PaperLines.Lines.Count; i++)
         {
             PaperLines.Lines[i].paragraphLeft.Text = HighlightTexts.UnhighlightString(PaperLines.Lines[i].paragraphLeft.Text);
             if (PaperLines.Lines[i].MiddleText != null) PaperLines.Lines[i].MiddleText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].MiddleText);
             if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.UnhighlightString(PaperLines.Lines[i].RightText);
         }
         PersistentData.GenericData.HighlightedText = string.Empty;
-        //StateHasChanged();
+        StateHasChanged();
     }
 
     private void OnHighlightExpression(string expression)
@@ -370,7 +297,7 @@
         if (!string.IsNullOrEmpty(expression))
         {
             PersistentData.GenericData.HighlightedText = expression;
-            for (int i = 0; i < PaperLines.Titles.Count; i++)
+            for (int i = 0; i < PaperLines.Lines.Count; i++)
             {
 
                 PaperLines.Lines[i].paragraphLeft.Text = HighlightTexts.HighlightString(PaperLines.Lines[i].paragraphLeft.Text, expression);
@@ -378,7 +305,7 @@
                 if (PaperLines.Lines[i].RightText != null) PaperLines.Lines[i].RightText = HighlightTexts.HighlightString(PaperLines.Lines[i].RightText, expression);
             }
         }
-        //StateHasChanged();
+        StateHasChanged();
     }
 
     #endregion
@@ -550,6 +477,7 @@
 
     public async void OnNewParagraphIdent(TOC_Entry entry)
     {
+        StaticObjects.Parameters.Entry = entry;
         await ShowPage();
     }
 
