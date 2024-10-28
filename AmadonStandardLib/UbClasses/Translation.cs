@@ -198,6 +198,13 @@ namespace AmadonStandardLib.UbClasses
         }
 
 
+        public string GetPaperTitle(short paperNo)
+        {
+            Paper paper= (from p in Papers where p.PaperNo == paperNo select p).ToList().First();
+            if (paper == null)
+                return "";
+            return $"{TUB} - {PaperTranslation} {paperNo}:  {paper.Title}" ;
+        }
 
         public bool CreateTableOfContents()
         {
