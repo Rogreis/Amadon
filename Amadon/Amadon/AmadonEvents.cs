@@ -1,5 +1,6 @@
 ﻿using AmadonStandardLib.InterchangeData;
 using AmadonStandardLib.UbClasses;
+using Windows.Media.Streaming.Adaptive;
 
 namespace Amadon
 {
@@ -22,6 +23,7 @@ namespace Amadon
     internal delegate void EditNoteClosedDelegate(UserNote note, bool cancel);
     internal delegate void SearchNewTextDelegate(string text);
     internal delegate void SubjectSearchNewTextDelegate(string text);
+    internal delegate void SetWindowTitleDelegate(string text);
 
 
     internal class AmandonComponentNames
@@ -147,6 +149,10 @@ namespace Amadon
         /// </summary>
         public static event SubjectSearchNewTextDelegate OnSubjectSearchNewText;
 
+        /// <summary>
+        /// FIred to set a new main window title
+        /// </summary>
+        public static event SetWindowTitleDelegate OnSetWindowTitle;
 
         // ============================================================================================================= 
         // Functions to fire the above events
@@ -256,6 +262,12 @@ namespace Amadon
         {
             OnSubjectSearchNewText?.Invoke(text);
         }
+
+        public static void SetWindowTitle(string text)
+        {
+            OnSetWindowTitle?.Invoke(text);
+        }
+        
 
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

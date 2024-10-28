@@ -10,17 +10,32 @@ namespace Amadon
     /// </summary>
     public partial class App : Application
     {
+
+        private Window window;
+
         public App()
         {
             InitializeComponent();
 
             MainPage = new MainPage();
-
-            MainPage.Disappearing += MainPage_Disappearing;
+            if (MainPage != null)
+            {
+                MainPage.Title = "O Livro de Urântia"; 
+                MainPage.Disappearing += MainPage_Disappearing;
+            }
+            AmadonEvents.OnSetWindowTitle += AmadonEvents_OnSetWindowTitle;
 
             // https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/app-lifecycle
 
             //this.PageDisappearing += App_PageDisappearing;
+        }
+
+        private void AmadonEvents_OnSetWindowTitle(string text)
+        {
+            if (DeviceInfo.Current.Platform == DevicePlatform.WinUI)
+            {
+                window.Title = text;
+            }
         }
 
         private void MainPage_Disappearing(object sender, EventArgs e)
@@ -29,7 +44,7 @@ namespace Amadon
 
         protected override Window CreateWindow(IActivationState activationState)
         {
-            Window window = base.CreateWindow(activationState);
+            window = base.CreateWindow(activationState);
 
             window.Created += (s, e) =>
             {
@@ -39,7 +54,7 @@ namespace Amadon
             window.Destroying += (s, e) => 
             {
                 SettingsService.Store();
-            }; 
+            };
 
             return window;
         }

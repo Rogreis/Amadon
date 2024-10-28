@@ -427,6 +427,25 @@
     private async void GetTexts()
     {
         PaperLines = await TextServiceContextMenu.GetHtml();
+
+        Translation? translation = null;
+        switch (StaticObjects.Parameters.TranslationForTableOfContents)
+        {
+            case TranslatioForTocSearch.Left:
+                //string papertTitle = PaperLines.Titles.
+                translation = StaticObjects.Book.LeftTranslation;
+                break;
+            case TranslatioForTocSearch.Middle:
+                translation = StaticObjects.Book.MiddleTranslation;
+                break;
+            case TranslatioForTocSearch.Right:
+                translation = StaticObjects.Book.RightTranslation;
+                break;
+        }
+        string windowTitle = "";
+        if (translation != null)
+            windowTitle = translation.Description + " - " + translation.GetPaperTitle(StaticObjects.Parameters.Entry.Paper);
+        AmadonEvents.SetWindowTitle(windowTitle);
         await Task.Delay(10);
     }
 
