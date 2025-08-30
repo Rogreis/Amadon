@@ -1,13 +1,9 @@
 ﻿using AmadonStandardLib.Classes;
 using AmadonStandardLib.UbClasses;
 using J2N.Collections.Generic;
-using Lucene.Net.Search;
 using System;
 using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
-using static System.Environment;
 
 namespace AmadonStandardLib.Helpers
 {
@@ -175,25 +171,29 @@ namespace AmadonStandardLib.Helpers
         {
             try
             {
+                /*
+                 * Alterei esta função em Agosto/2025 para não depender de janela modal e usar apenas arquivos locais
+                 * */
                 StaticObjects.Book = new Book();
                 bool ret = false;
 
-                // First try to get from github
                 string localAvailableTranslationsPath = Path.Combine(StaticObjects.Parameters.ApplicationDataFolder, AvailableTranslations);
-                string url = MakeGitHubUrl(AvailableTranslations);
-                ret = await GetDataFiles.DownloadTextFileAsync(url, localAvailableTranslationsPath);
-                if (!ret)
-                {
-                    StaticObjects.Logger.Error("Could not get Translations list from github.");
-                    // if could not get from online, try to use local one
-                    if (!GetDataFiles.LocalFileExists(localAvailableTranslationsPath))
-                    {
-                        StaticObjects.Logger.Error("Could not get Translations list from local too.");
-                        return false;
-                    }
-                }
 
-                string json= await GetDataFiles.GetStringFromLocalFile(localAvailableTranslationsPath);
+                // First try to get from github
+                //string url = MakeGitHubUrl(AvailableTranslations);
+                //ret = await GetDataFiles.DownloadTextFileAsync(url, localAvailableTranslationsPath);
+                //if (!ret)
+                //{
+                //    StaticObjects.Logger.Error("Could not get Translations list from github.");
+                //    // if could not get from online, try to use local one
+                //    if (!GetDataFiles.LocalFileExists(localAvailableTranslationsPath))
+                //    {
+                //        StaticObjects.Logger.Error("Could not get Translations list from local too.");
+                //        return false;
+                //    }
+                //}
+
+                string json = await GetDataFiles.GetStringFromLocalFile(localAvailableTranslationsPath);
                 switch (json)
                 {
                     case GetDataFiles.FileNotFound:
@@ -259,7 +259,10 @@ namespace AmadonStandardLib.Helpers
             try
             {
                 List<short> initTranslations = new List<short>(StaticObjects.Parameters.TranslationsToShowId);
-                initTranslations.Add(0); // add the English that is not optional
+                if (!initTranslations.Contains(0))
+                {
+                    initTranslations.Add(0); // add the English that is not optional
+                }
                 foreach (short translationId in initTranslations)
                 {
                     currentTranslationId= translationId;
@@ -276,13 +279,14 @@ namespace AmadonStandardLib.Helpers
                             if (!ret) return ret;
                         }
 
-                        string hash = GetDataFiles.CalculateMD5(localTranslationPath);
-                        if (trans.Hash != hash)
-                        {
-                            string url = MakeGitHubUrl(MakeTranslationFileName(translationId, "gz"));
-                            bool ret = await GetDataFiles.DownloadBinaryFile(url, localTranslationPath);
-                            if (!ret) return ret;
-                        }
+                        // Verificação do hash desativada em Agosto/2025 por causa de problemas com as modais
+                        //string hash = GetDataFiles.CalculateMD5(localTranslationPath);
+                        //if (trans.Hash != hash)
+                        //{
+                        //    string url = MakeGitHubUrl(MakeTranslationFileName(translationId, "gz"));
+                        //    bool ret = await GetDataFiles.DownloadBinaryFile(url, localTranslationPath);
+                        //    if (!ret) return ret;
+                        //}
 
                         string json = await GetDataFiles.GetStringFromZippedFile(localTranslationPath);
                         switch (json)

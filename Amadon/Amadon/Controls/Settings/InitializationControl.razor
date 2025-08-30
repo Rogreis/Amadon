@@ -202,19 +202,45 @@
                     break;
 
                 case Status.TranslationsListInitialized:
-                    if (!StaticObjects.Parameters.TranslationsChoiceDone)
-                    {
-                        // To show the modal, initialization loop is stopped
-                        // It will be re-started in the modal ok function
-                        continues = false;
-                        InitializationStatus = Status.WaitingTranslationChoice;
-                        await ShowModal(ModalSize.Large, 50, true);
-                        return Status.WaitingTranslationChoice;
-                    }
-                    else
-                    {
-                        InitializationStatus = Status.TranslationsChoiceDone;
-                    }
+                    /*
+                     * 
+                     * Código alterado por causa do problema das modais
+                     */
+                    const short EnglishId = 0;
+                    const short Freanch2014 = 44;
+                    const short Italian2006 = 29;
+                    const short Portuguese2007 = 34;
+                    const short PortugueseAlternative = 2;
+                    const short Spanish2021 = 143;
+                    const short Spanish1993 = 33;
+                    const short SpanishEscobar = 144;
+                    const short Spanish2009 = 7;
+                    StaticObjects.Parameters.TranslationsToShowId = 
+                       new List<short> { EnglishId, 
+                                         Freanch2014, 
+                                         Italian2006, 
+                                         Portuguese2007, 
+                                         PortugueseAlternative, 
+                                         Spanish2021, 
+                                         Spanish1993, 
+                                         SpanishEscobar, 
+                                         Spanish2009
+                                       };
+                    InitializationStatus = Status.TranslationsChoiceDone;
+
+                    // if (!StaticObjects.Parameters.TranslationsChoiceDone)
+                    // {
+                    //     To show the modal, initialization loop is stopped
+                    //     It will be re-started in the modal ok function
+                    //     continues = false;
+                    //     InitializationStatus = Status.WaitingTranslationChoice;
+                    //     await ShowModal(ModalSize.Large, 50, true);
+                    //     return Status.WaitingTranslationChoice;
+                    // }
+                    // else
+                    // {
+                    //     InitializationStatus = Status.TranslationsChoiceDone;
+                    // }
                     break;
                 case Status.TranslationsChoiceDone:
                     ret = await InitializationService.InitEachTranslation();
