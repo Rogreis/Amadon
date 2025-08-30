@@ -1,6 +1,6 @@
 ﻿using AmadonStandardLib.InterchangeData;
 using AmadonStandardLib.UbClasses;
-using Windows.Media.Streaming.Adaptive;
+//using Windows.Media.Streaming.Adaptive;
 
 namespace Amadon
 {

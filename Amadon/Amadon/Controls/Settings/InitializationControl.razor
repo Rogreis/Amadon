@@ -91,7 +91,7 @@
     }
 
 
-    private Task ShowModal(ModalSize modalSize, int? maxHeight = null, bool centered = false)
+    private async Task ShowModal(ModalSize modalSize, int? maxHeight = null, bool centered = false)
     {
         this.centered = centered;
         this.modalSize = modalSize;
@@ -106,8 +106,9 @@
                 Items.Add(new TranslationToShowItem { Id = trans.LanguageID, Value = selected, DisplayText = trans.Description });
             }
         }
+
         StateHasChanged();
-        return ModalTranslationsToShow.Show();
+        await ModalTranslationsToShow.Show();
     }
 
     private async Task HideModalCancel()

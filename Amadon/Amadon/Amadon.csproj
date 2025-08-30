@@ -39,6 +39,10 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
     </PropertyGroup>
 
+    <PropertyGroup>
+      <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    </PropertyGroup>
+
     <ItemGroup>
         <!-- App Icon -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" ForegroundFile="Resources\AppIcon\appiconfg.svg" Color="#512BD4" />
@@ -63,20 +67,29 @@
 
     <ItemGroup>
         <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-        <PackageReference Include="Blazorise" Version="1.6.2" />
-        <PackageReference Include="Blazorise.Bootstrap5" Version="1.6.2" />
-        <PackageReference Include="Blazorise.DataGrid" Version="1.6.2" />
-        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.6.2" />
-        <PackageReference Include="Blazorise.RichTextEdit" Version="1.6.2" />
-        <PackageReference Include="Blazorise.TreeView" Version="1.6.2" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.92" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.92" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.92" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
+        <PackageReference Include="Blazorise" Version="1.8.1" />
+        <PackageReference Include="Blazorise.Bootstrap5" Version="1.8.1" />
+        <PackageReference Include="Blazorise.DataGrid" Version="1.8.1" />
+        <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.8.1" />
+        <PackageReference Include="Blazorise.RichTextEdit" Version="1.8.1" />
+        <PackageReference Include="Blazorise.TreeView" Version="1.8.1" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageVersion Include="Microsoft.Maui.Core" Version="8.0.100" />
+      <PackageVersion Include="Microsoft.Maui.Controls" Version="8.0.100" />
+      <PackageVersion Include="Microsoft.Maui.Essentials" Version="8.0.100" />
+      <PackageVersion Include="Microsoft.Maui.Graphics" Version="8.0.100" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\AmadonStandardLib\AmadonStandardLib.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="Microsoft.Maui.Controls" Version="9.0.100" />
     </ItemGroup>
 
 </Project>
