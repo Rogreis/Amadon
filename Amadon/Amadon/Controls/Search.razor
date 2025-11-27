@@ -11,7 +11,12 @@
         <Blazorise.Column>
             <h5>Search UB texts for</h5>
             <h5>@CurrentTranslationTitle:</h5>
-            <Blazorise.TextEdit @ref="TextToSearchObject" @bind-Text="@PersistentData.SearchData.QueryString" Placeholder="Search the subject index titles..." Size="Blazorise.Size.Small" @onkeydown="HandleKeyDown" />
+            <Blazorise.TextEdit @ref="TextToSearchObject" 
+                    @bind-Text="@PersistentData.SearchData.QueryString"
+                    TextEditRole="TextEditRole.TextArea"
+                    Placeholder="Search the subject index titles..." 
+                    Size="Blazorise.Size.Small" 
+                    @onkeydown="HandleKeyDown" />
         </Blazorise.Column>
     </Blazorise.Row>
 
