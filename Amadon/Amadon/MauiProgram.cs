@@ -53,52 +53,59 @@ namespace Amadon
     {
         public static MauiApp CreateMauiApp()
         {
-            MauiAppBuilder builder = MauiApp.CreateBuilder();
+            try
+            {
+                MauiAppBuilder builder = MauiApp.CreateBuilder();
 
-            //InitializationService.InitLogger(builder);
+                //InitializationService.InitLogger(builder);
 
 
-            builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
+                builder
+                    .UseMauiApp<App>()
+                    .ConfigureFonts(fonts =>
+                    {
+                        fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    });
+
+                builder.Services.AddMauiBlazorWebView();
+
+                builder.Services.AddBlazoredLocalStorage(config =>
                 {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
+                    config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
+                    //config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                    config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
+                    config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                    config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                    //config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
+                    config.JsonSerializerOptions.WriteIndented = true;
                 });
 
-            builder.Services.AddMauiBlazorWebView();
-
-            builder.Services.AddBlazoredLocalStorage(config =>
-            {
-                config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-                //config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-                config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
-                config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                //config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-                config.JsonSerializerOptions.WriteIndented = true;
-            });
-
-            builder.Services
-                .AddBlazoriseRichTextEdit()
-                .AddBootstrap5Providers();
+                builder.Services
+                    .AddBlazoriseRichTextEdit()
+                    .AddBootstrap5Providers();
 
 #if DEBUG
-            builder.Services.AddBlazorWebViewDeveloperTools();
-		//builder.Logging.AddDebug();
+                builder.Services.AddBlazorWebViewDeveloperTools();
+                //builder.Logging.AddDebug();
 #endif
 
-            builder.Services
-                .AddBlazorise(options =>
-                {
-                    options.Immediate = true;
-                })
-                .AddBootstrap5Providers()
-                .AddFontAwesomeIcons();
+                builder.Services
+                    .AddBlazorise(options =>
+                    {
+                        options.Immediate = true;
+                    })
+                    .AddBootstrap5Providers()
+                    .AddFontAwesomeIcons();
 
-            var app = builder.Build();
+                var app = builder.Build();
 
-
-            return app;
+                return app;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in CreateMauiApp: {ex}");
+                throw;
+            }
         }
 
     }

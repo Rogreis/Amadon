@@ -37,6 +37,11 @@
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'tizen'">6.5</SupportedOSPlatformVersion>
+        <SkipValidateMauiImplicitPackageReferences>true</SkipValidateMauiImplicitPackageReferences>
+        
+        <!-- Fix for .NET SDK 9 building .NET 8 targets -->
+        <TargetPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">17.0</TargetPlatformVersion>
+        <TargetPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">17.0</TargetPlatformVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -73,23 +78,14 @@
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.8.1" />
         <PackageReference Include="Blazorise.RichTextEdit" Version="1.8.1" />
         <PackageReference Include="Blazorise.TreeView" Version="1.8.1" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.100" />
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.100" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageVersion Include="Microsoft.Maui.Core" Version="8.0.100" />
-      <PackageVersion Include="Microsoft.Maui.Controls" Version="8.0.100" />
-      <PackageVersion Include="Microsoft.Maui.Essentials" Version="8.0.100" />
-      <PackageVersion Include="Microsoft.Maui.Graphics" Version="8.0.100" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.100" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\AmadonStandardLib\AmadonStandardLib.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="Microsoft.Maui.Controls" Version="9.0.100" />
     </ItemGroup>
 
 </Project>

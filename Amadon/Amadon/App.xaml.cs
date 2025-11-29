@@ -15,19 +15,48 @@ namespace Amadon
 
         public App()
         {
-            InitializeComponent();
-
-            MainPage = new MainPage();
-            if (MainPage != null)
+            try
             {
-                MainPage.Title = "O Livro de Urântia"; 
-                MainPage.Disappearing += MainPage_Disappearing;
+                // Add unhandled exception handler
+                AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+                TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
+
+                InitializeComponent();
+
+                MainPage = new MainPage();
+                if (MainPage != null)
+                {
+                    MainPage.Title = "O Livro de Urântia"; 
+                    MainPage.Disappearing += MainPage_Disappearing;
+                }
+                AmadonEvents.OnSetWindowTitle += AmadonEvents_OnSetWindowTitle;
+
+                // https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/app-lifecycle
+
+                //this.PageDisappearing += App_PageDisappearing;
             }
-            AmadonEvents.OnSetWindowTitle += AmadonEvents_OnSetWindowTitle;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in App constructor: {ex}");
+                System.IO.File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "amadon_error.txt"), $"Error in App constructor: {ex}\r\n{ex.StackTrace}");
+                throw;
+            }
+        }
 
-            // https://learn.microsoft.com/en-us/dotnet/maui/fundamentals/app-lifecycle
+        private void OnUnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Unhandled Exception: {ex}");
+                System.IO.File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "amadon_error.txt"), $"Unhandled Exception: {ex}\r\n{ex.StackTrace}");
+            }
+        }
 
-            //this.PageDisappearing += App_PageDisappearing;
+        private void OnUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"Unobserved Task Exception: {e.Exception}");
+            System.IO.File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "amadon_error.txt"), $"Unobserved Task Exception: {e.Exception}\r\n{e.Exception.StackTrace}");
+            e.SetObserved();
         }
 
         private void AmadonEvents_OnSetWindowTitle(string text)

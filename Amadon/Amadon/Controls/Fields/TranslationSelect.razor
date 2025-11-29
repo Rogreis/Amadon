@@ -75,7 +75,8 @@
         foreach (short idTransToShow in StaticObjects.Parameters.TranslationsToShowId)
         {
             Translation trans = StaticObjects.Book.GetTranslation(idTransToShow);
-            Items.Add(new TranslationDropdownItem() { Id = idTransToShow, Description = trans.Description });
+            if (trans != null)
+                Items.Add(new TranslationDropdownItem() { Id = idTransToShow, Description = trans.Description });
         }
         TranslationSelectComponentInitialized = true;
         StateHasChanged();

@@ -141,30 +141,52 @@ namespace AmadonStandardLib.Classes
 
         public void UpdateIndex(Paragraph paragraph)
         {
-            // Open the index for writing
-            Analyzer analyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48);
-            IndexWriterConfig config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
-            IndexWriter indexWriter = new IndexWriter(luceneIndexDirectory, config);
+            if (paragraph == null)
+            {
+                throw new ArgumentNullException(nameof(paragraph));
+            }
 
-            // Delete the old version of the document
-            Term term = new Term(FieldParagraph, paragraph.ID);
-            indexWriter.DeleteDocuments(term);
+            if (luceneIndexDirectory == null)
+            {
+                throw new InvalidOperationException("Index directory not initialized. Call Execute first to create the index.");
+            }
 
-            Document doc = new Document();
-            doc.Add(new StringField("id", paragraph.Paper.ToString(), Field.Store.YES));
-            doc.Add(new StringField(FieldPaper, paragraph.Paper.ToString(), Field.Store.YES));
-            doc.Add(new StringField(FieldSection, paragraph.Section.ToString(), Field.Store.YES));
-            doc.Add(new StringField(FieldParagraph, paragraph.ParagraphNo.ToString(), Field.Store.YES));
-            doc.Add(new TextField(FieldText, paragraph.Text, Field.Store.YES));
+            try
+            {
+                // Open the index for writing
+                Analyzer analyzer = new StandardAnalyzer(LuceneVersion.LUCENE_48);
+                IndexWriterConfig config = new IndexWriterConfig(LuceneVersion.LUCENE_48, analyzer);
 
-            // Add the new version of the document
-            indexWriter.AddDocument(doc);
+                using (IndexWriter indexWriter = new IndexWriter(luceneIndexDirectory, config))
+                {
+                    // Delete the old version of the document using the correct field
+                    Term term = new Term(FieldId, paragraph.ID);
+                    indexWriter.DeleteDocuments(term);
 
-            // Commit the changes to the index
-            indexWriter.Commit();
+                    // Create new document with consistent field usage
+                    Document doc = new Document();
+                    doc.Add(new StringField(FieldId, paragraph.ID, Field.Store.YES));
+                    doc.Add(new StringField(FieldPaper, paragraph.Paper.ToString(), Field.Store.YES));
+                    doc.Add(new StringField(FieldSection, paragraph.Section.ToString(), Field.Store.YES));
+                    doc.Add(new StringField(FieldParagraph, paragraph.ParagraphNo.ToString(), Field.Store.YES));
+                    doc.Add(new TextField(FieldText, paragraph.Text, Field.Store.YES));
 
-            // Close the index writer
-            indexWriter.Dispose();
+                    // Add the new version of the document
+                    indexWriter.AddDocument(doc);
+
+                    // Commit the changes to the index
+                    indexWriter.Commit();
+                }
+
+                FireSendMessage($"Updated paragraph {paragraph.ID} in search index");
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"Error updating index for paragraph {paragraph.ID}";
+                StaticObjects.Logger.Error(errorMsg, ex);
+                FireSendMessage(errorMsg, ex);
+                throw;
+            }
         }
 
         public bool Execute(SearchData searchData)

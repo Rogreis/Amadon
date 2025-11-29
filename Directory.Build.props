@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <!-- Suppress end-of-life warnings for .NET 8 when using .NET 9 SDK -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);NETSDK1202</MSBuildWarningsAsMessages>
+  </PropertyGroup>
+  
+  <!-- Fix for .NET SDK 9 building .NET 8 MAUI targets -->
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">
+    <TargetPlatformVersion>17.0</TargetPlatformVersion>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">
+    <TargetPlatformVersion>17.0</TargetPlatformVersion>
+  </PropertyGroup>
+</Project>

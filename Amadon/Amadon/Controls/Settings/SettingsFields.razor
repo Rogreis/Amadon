@@ -275,7 +275,8 @@
         foreach (short id in StaticObjects.Parameters.TranslationsToShowId)
         {
             Translation trans = StaticObjects.Book.GetTranslation(id);
-            items.Add(new SelectTranslation() { Id = id, Descrition = trans.Description });
+            if (trans != null)
+                items.Add(new SelectTranslation() { Id = id, Descrition = trans.Description });
         }
 
         SettingsPageInitialized = true;
